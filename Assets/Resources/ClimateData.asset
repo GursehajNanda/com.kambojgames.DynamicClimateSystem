@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26b815fa372b8d45a8cefdb46f80689, type: 3}
   m_Name: ClimateData
   m_EditorClassIdentifier: 
-  m_year: 1
+  m_year: 2
   m_month: 1
-  m_monthDay: 0
-  m_hour: 13
-  m_minute: 15
+  m_monthDay: 1
+  m_hour: 0
+  m_minute: 54
   m_currentSeason: 

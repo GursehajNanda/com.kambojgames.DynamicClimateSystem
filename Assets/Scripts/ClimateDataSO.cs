@@ -9,7 +9,7 @@ public class ClimateDataSO : ScriptableObject
     [Header("Date Time And Day Data")]
     [Min(1)]
     [SerializeField] private int m_year;
-    [SerializeField] private Month m_month = Month.January;
+    [SerializeField] private Month m_month;
     [Range(1, 31)]
     [SerializeField] private int m_monthDay;
     [Range(0, 23)]
@@ -23,6 +23,22 @@ public class ClimateDataSO : ScriptableObject
 
 
     private static ClimateDataSO m_instance;
+
+    private void OnValidate()
+    {
+        // Clamp the year
+        if (m_year < 1)
+            m_year = 1;
+
+        // Get max valid days for the current month & year
+        int maxDays = DateTime.DaysInMonth(m_year, (int)m_month);
+
+        // Clamp the day based on the actual number of days in the month
+        if (m_monthDay > maxDays)
+            m_monthDay = maxDays;
+        else if (m_monthDay < 1)
+            m_monthDay = 1;
+    }
 
     public static ClimateDataSO Instance
     {
@@ -43,7 +59,15 @@ public class ClimateDataSO : ScriptableObject
 
     public void SetYear(int Year)
     {
-        m_year = Year;
+        if (Year < 1)
+        {
+            m_year = 1;
+        }
+        else
+        {
+            m_year = Year;
+        }
+       
     }
 
     public void SetMonth(Month month)
@@ -53,17 +77,17 @@ public class ClimateDataSO : ScriptableObject
 
     public void SetMonthDay(int monthDay)
     {
-        m_monthDay = monthDay;
+        m_monthDay = Mathf.Clamp(monthDay, 1, DateTime.DaysInMonth(m_year, (int)m_month));
     }
 
     public void SetHourOfDay(int hour)
     {
-        m_hour = hour;
+        m_hour = Mathf.Clamp(hour, 0, 23);
     }
 
     public void SetMinuteOfHour(int minute)
     {
-        m_minute = minute;
+        m_minute = Mathf.Clamp(minute, 0, 59); ;
     }
 
     public void  SetDateTimeYearData(DateTime dateTimeYearData)
@@ -77,8 +101,7 @@ public class ClimateDataSO : ScriptableObject
 
     public DateTime GetDateTimeYearData()
     {
-        DateTime dateTimeYearData = new DateTime(m_year, (int)m_month, m_monthDay, m_hour, m_minute, 0);
-        return dateTimeYearData;
+        return new DateTime(m_year, (int)m_month, m_monthDay, m_hour, m_minute, 0);
     }
 }
 

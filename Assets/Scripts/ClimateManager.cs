@@ -18,15 +18,15 @@ public class ClimateManager : MonoBehaviour
     {
         m_timeAndDayManager.UpdateDateAndTime();
 
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            //Get it through ClimateDataSO
-            Debug.Log("Current Year: " + m_climateDataSO.GetDateTimeYearData().Year);
-            Debug.Log("Current Month: " + (Month)m_climateDataSO.GetDateTimeYearData().Month); ;
-            Debug.Log("Current Month Day: " + m_climateDataSO.GetDateTimeYearData().Day);
-            Debug.Log("Current Week Day: " +(WeekDay)m_climateDataSO.GetDateTimeYearData().DayOfWeek); ;
-            Debug.Log("Current Time Hour: " + m_climateDataSO.GetDateTimeYearData().Hour); ;
-            Debug.Log("Current Time Minute: " + m_climateDataSO.GetDateTimeYearData().Minute); ;
-        }
+        //if(Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    //Get it through ClimateDataSO
+        //    Debug.Log("Current Year: " + m_climateDataSO.GetDateTimeYearData().Year);
+        //    Debug.Log("Current Month: " + (Month)m_climateDataSO.GetDateTimeYearData().Month); ;
+        //    Debug.Log("Current Month Day: " + m_climateDataSO.GetDateTimeYearData().Day);
+        //    Debug.Log("Current Week Day: " +(WeekDay)m_climateDataSO.GetDateTimeYearData().DayOfWeek); ;
+        //    Debug.Log("Current Time Hour: " + m_climateDataSO.GetDateTimeYearData().Hour); ;
+        //    Debug.Log("Current Time Minute: " + m_climateDataSO.GetDateTimeYearData().Minute); ;
+        //}
     }
 }
