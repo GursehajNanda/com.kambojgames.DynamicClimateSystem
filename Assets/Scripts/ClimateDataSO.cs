@@ -19,10 +19,19 @@ public class ClimateDataSO : ScriptableObject
 
 
     [Header("Season Data")]
-    [SerializeField]  string m_currentSeason;
+    [SerializeField] private Gradient m_summerColorGradient;
+    [SerializeField] private Gradient m_winterColorGradient;
+    [SerializeField] private Gradient m_springColorGradient;
+    [SerializeField] private Gradient m_autumnColorGradient;
 
-
+    private DayPeriod m_dayPeriod;
+    private Season m_currentSeason;
     private static ClimateDataSO m_instance;
+
+    public Gradient SummerColorGradient => m_summerColorGradient;
+    public Gradient WinterColorGradient => m_winterColorGradient;
+    public Gradient SpringColorGradient => m_springColorGradient;
+    public Gradient AutumnColorGradient => m_autumnColorGradient;
 
     private void OnValidate()
     {
@@ -90,6 +99,11 @@ public class ClimateDataSO : ScriptableObject
         m_minute = Mathf.Clamp(minute, 0, 59); ;
     }
 
+    public void SetDayPeriod(DayPeriod dayPeriod)
+    {
+        m_dayPeriod = dayPeriod;
+    }
+
     public void  SetDateTimeYearData(DateTime dateTimeYearData)
     {
         m_year = dateTimeYearData.Year;
@@ -99,10 +113,36 @@ public class ClimateDataSO : ScriptableObject
         m_minute = dateTimeYearData.Minute;
     }
 
+    public void SetCurrentSeason(Season season)
+    {
+        m_currentSeason = season;
+    }
+
     public DateTime GetDateTimeYearData()
     {
         return new DateTime(m_year, (int)m_month, m_monthDay, m_hour, m_minute, 0);
     }
+
+    public DayPeriod GetDayPeriod()
+    {
+        return m_dayPeriod;
+    }
+
+    public Season GetCurrentSeason()
+    {
+        return m_currentSeason;
+    }
 }
 
+public enum Season { Spring, Summer, Autumn, Winter }
+public enum DayPeriod { Night, Morning, Afternoon, Evening }
+public enum Month
+{
+    January = 1, February, March, April, May, June,
+    July, August, September, October, November, December
+}
 
+public enum WeekDay
+{
+    Sunday = 0, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+}
