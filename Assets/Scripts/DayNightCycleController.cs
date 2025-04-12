@@ -8,10 +8,11 @@ using KambojGames.Utilities2D;
 [Serializable]
 public class DayNightCycleController 
 {
-    [Header("Sunlight Movement")]
-    [SerializeField] private Transform m_sunTransform;
+    [Header("Sunlight")]
+    [SerializeField] private Light2D m_sun;
     [SerializeField] private Transform m_orbitCenter;
     [SerializeField] private float m_orbitRadius = 20f;
+    [SerializeField] float m_intensitySmoothSpeed = 2f;
 
     [Header("Lighting")]
     [SerializeField] private Light2D m_globalLight;
@@ -25,22 +26,25 @@ public class DayNightCycleController
     [SerializeField] private float m_eveningStart = 17f;
     [SerializeField] private float m_nightStart = 21f;
 
-    [Header("Blend Factor")]
-    [SerializeField] private float m_seasonBlendFactor; // 0 = current season, 1 = next season
+    [Header("Seasonal Blend factor")]
+    [SerializeField] private float m_seasonBlendFactor = 0.5f; // 0.5 to Blend Season Evenly
+
 
     private Season m_nextSeason;
+    private DayPeriod m_currentPeriod;
+    private Season m_currentSeason;
     private AnimationCurve m_summerCurve;
     private AnimationCurve m_winterCurve;
     private AnimationCurve m_springCurve;
     private AnimationCurve m_autumnCurve;
     private AnimationCurve m_nightLightFadeCurve;
-
-    private float m_inGameTime; // 0 - 24
-    private DayPeriod m_currentPeriod;
-    private Season m_currentSeason;
-    private bool IsInitialzied = false;
     private KeyValuePairList<Season, AnimationCurve> m_seasonCurves;
     private KeyValuePairList<Season, Gradient> m_seasonGradients;
+
+    float m_sunTargetIntensity = 1f;
+    private float m_inGameTime; // 0 - 24
+    private bool IsInitialzied = false;
+
 
     public void Initialize()
     {
@@ -118,15 +122,16 @@ public class DayNightCycleController
         UpdateLighting();
         UpdateDayPeriod();
         UpdateNightLights();
-      
+        UpdateSunIntensity();
+
     }
 
     void UpdateSunPosition()
     {
-        float angle = (m_inGameTime / 24f) * 360f;
+        float angle = ((m_inGameTime / 24f) * 360f) - 90f; // Shift so noon is at top (90° up)
         Vector3 offset = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)) * m_orbitRadius;
-        m_sunTransform.position = m_orbitCenter.position + offset;
-        m_sunTransform.right = (m_orbitCenter.position - m_sunTransform.position).normalized;
+        m_sun.transform.position = m_orbitCenter.position + offset;
+        m_sun.transform.right = (m_orbitCenter.position - m_sun.transform.position).normalized;
     }
 
     void UpdateLighting()
@@ -142,7 +147,6 @@ public class DayNightCycleController
 
         float blended = Mathf.Lerp(currentValue, nextValue, m_seasonBlendFactor);
         m_globalLight.intensity = blended;
-
 
         Gradient currentGradient = m_seasonGradients.GetValueByKey(m_currentSeason);
         Gradient nextGradient = m_seasonGradients.GetValueByKey(m_nextSeason);
@@ -167,15 +171,24 @@ public class DayNightCycleController
     void UpdateDayPeriod()
     {
         if (m_inGameTime >= m_nightStart || m_inGameTime < m_morningStart)
+        {
             m_currentPeriod = DayPeriod.Night;
+        }
         else if (m_inGameTime >= m_morningStart && m_inGameTime < m_afternoonStart)
+        {
             m_currentPeriod = DayPeriod.Morning;
+        }
         else if (m_inGameTime >= m_afternoonStart && m_inGameTime < m_eveningStart)
+        {
             m_currentPeriod = DayPeriod.Afternoon;
+        }
         else
+        {
             m_currentPeriod = DayPeriod.Evening;
+        }
 
         ClimateDataSO.Instance.SetDayPeriod(m_currentPeriod);
+
     }
 
     void UpdateSeasonalCurves()
@@ -188,4 +201,17 @@ public class DayNightCycleController
         m_nextSeason = (Season)nextSeasonValue;
     }
 
+    void UpdateSunIntensity()
+    {
+        if (m_currentPeriod == DayPeriod.Night)
+        {
+            m_sunTargetIntensity = 0.0f;
+        }
+        else
+        {
+            m_sunTargetIntensity = m_globalLight.intensity;
+        }
+
+        m_sun.intensity = Mathf.Lerp(m_sun.intensity, m_sunTargetIntensity, Time.deltaTime * m_intensitySmoothSpeed);
+    }
 }

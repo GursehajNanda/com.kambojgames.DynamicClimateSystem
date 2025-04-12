@@ -13,10 +13,12 @@ public class ClimateManager : MonoBehaviour
     private void Start()
     {
         m_timeAndDayManager = new TimeAndDayManager(m_minutesToLastADay);
+        m_dayAndNightController.Initialize();
     }
 
     private void Update()
     {
         m_timeAndDayManager.UpdateDateAndTime();
+        m_dayAndNightController.UpdateNightDayCycle();
     }
 }
