@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: ClimateData
   m_EditorClassIdentifier: 
   m_year: 1
-  m_month: 10
-  m_monthDay: 1
-  m_hour: 12
-  m_minute: 40
+  m_month: 11
+  m_monthDay: 29
+  m_hour: 23
+  m_minute: 50
   m_summerColorGradient:
     serializedVersion: 2
     key0: {r: 0.031309698, g: 0.051121764, b: 0.59568727, a: 1}
@@ -111,7 +111,7 @@ MonoBehaviour:
     serializedVersion: 2
     key0: {r: 0.031309698, g: 0.051121764, b: 0.59568727, a: 1}
     key1: {r: 0.96226406, g: 0.46881992, b: 0.22176152, a: 1}
-    key2: {r: 0.972549, g: 0.29235056, b: 0, a: 0}
+    key2: {r: 0.972549, g: 0.41065267, b: 0, a: 0}
     key3: {r: 0.99999994, g: 0.19811307, b: 0.19811307, a: 0}
     key4: {r: 0.31123337, g: 0.008431325, b: 0.5687331, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using System;
@@ -26,31 +26,9 @@ public class DayNightCycleController
     [SerializeField] private float m_eveningStart = 17f;
     [SerializeField] private float m_nightStart = 21f;
 
-    [Header("Seasonal Blend factor")]
-    [SerializeField] private float m_seasonBlendFactor = 0.5f; // 0.5 to Blend Season Evenly
 
 
-    private Season m_nextSeason;
-    private DayPeriod m_currentPeriod;
-    private Season m_currentSeason;
-    private AnimationCurve m_summerCurve;
-    private AnimationCurve m_winterCurve;
-    private AnimationCurve m_springCurve;
-    private AnimationCurve m_autumnCurve;
-    private AnimationCurve m_nightLightFadeCurve;
-    private KeyValuePairList<Season, AnimationCurve> m_seasonCurves;
-    private KeyValuePairList<Season, Gradient> m_seasonGradients;
-
-    float m_sunTargetIntensity = 1f;
-    private float m_inGameTime; // 0 - 24
-    private bool IsInitialzied = false;
-
-
-    public void Initialize()
-    {
-        m_currentSeason = ClimateDataSO.Instance.GetCurrentSeason();
-
-        m_summerCurve = new AnimationCurve(
+    private AnimationCurve m_summerCurve = new AnimationCurve(
             new Keyframe(0f, 0.2f),  // midnight - dim
             new Keyframe(0.25f, 0.8f), // 6 AM
             new Keyframe(0.5f, 1f),   // noon - peak light
@@ -58,7 +36,7 @@ public class DayNightCycleController
             new Keyframe(1f, 0.2f)   // midnight again
        );
 
-        m_winterCurve = new AnimationCurve(
+    private AnimationCurve m_winterCurve = new AnimationCurve(
             new Keyframe(0f, 0.05f),
             new Keyframe(0.3f, 0.4f),
             new Keyframe(0.5f, 0.6f),
@@ -66,15 +44,14 @@ public class DayNightCycleController
             new Keyframe(1f, 0.05f)
         );
 
-        m_springCurve = new AnimationCurve(
+    private AnimationCurve m_springCurve = new AnimationCurve(
             new Keyframe(0f, 0.1f),
             new Keyframe(0.25f, 0.6f),
             new Keyframe(0.5f, 0.9f),
             new Keyframe(0.75f, 0.6f),
             new Keyframe(1f, 0.1f)
         );
-
-        m_autumnCurve = new AnimationCurve(
+    private AnimationCurve m_autumnCurve = new AnimationCurve(
             new Keyframe(0f, 0.1f),
             new Keyframe(0.3f, 0.5f),
             new Keyframe(0.5f, 0.7f),
@@ -82,7 +59,7 @@ public class DayNightCycleController
             new Keyframe(1f, 0.1f)
         );
 
-        m_nightLightFadeCurve = new AnimationCurve(
+    private AnimationCurve m_nightLightFadeCurve = new AnimationCurve(
             new Keyframe(0f, 0f),              // Midnight - off
             new Keyframe(0.167f, 0f),          // 4 AM - still off
             new Keyframe(0.25f, 1f),           // 6 AM - lights fade out
@@ -91,6 +68,30 @@ public class DayNightCycleController
             new Keyframe(1f, 1f)               // End of day - still on
         );
 
+    private Dictionary<Season, int> m_seasonStartDayOfYear = new Dictionary<Season, int>
+        {
+            { Season.Spring, 60 },   // March 1
+            { Season.Summer, 151 },  // June 1
+            { Season.Autumn,   243 },  // Sept 1
+            { Season.Winter, 334 }   // Dec 1
+        };
+
+    private KeyValuePairList<Season, AnimationCurve> m_seasonCurves;
+    private KeyValuePairList<Season, Gradient> m_seasonGradients;
+
+    private Season m_nextSeason;
+    private DayPeriod m_currentPeriod;
+    private Season m_currentSeason;
+    private float m_seasonBlendFactor = 0.5f;
+    float m_sunTargetIntensity = 1f;
+    private float m_inGameTime; // 0 - 24
+    private int m_currentDay;
+    private bool IsInitialzied = false;
+
+
+    public void Initialize()
+    {
+       
         m_seasonCurves = new KeyValuePairList<Season, AnimationCurve>();
         m_seasonCurves.Add(Season.Spring, m_springCurve);
         m_seasonCurves.Add(Season.Summer, m_summerCurve);
@@ -102,7 +103,9 @@ public class DayNightCycleController
         m_seasonGradients.Add(Season.Summer, ClimateDataSO.Instance.SummerColorGradient);
         m_seasonGradients.Add(Season.Autumn, ClimateDataSO.Instance.AutumnColorGradient);
         m_seasonGradients.Add(Season.Winter, ClimateDataSO.Instance.WinterColorGradient);
-    
+
+        m_currentDay = ClimateDataSO.Instance.GetDateTimeYearData().Day;
+        UpdateSeasonalCurves();
 
         IsInitialzied = true;
     }
@@ -123,12 +126,12 @@ public class DayNightCycleController
         UpdateDayPeriod();
         UpdateNightLights();
         UpdateSunIntensity();
-
+        UpdateSeasonalBlendFactor();
     }
 
     void UpdateSunPosition()
     {
-        float angle = ((m_inGameTime / 24f) * 360f) - 90f; // Shift so noon is at top (90� up)
+        float angle = ((m_inGameTime / 24f) * 360f) - 90f; // Shift so noon is at top (90° up)
         Vector3 offset = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)) * m_orbitRadius;
         m_sun.transform.position = m_orbitCenter.position + offset;
         m_sun.transform.right = (m_orbitCenter.position - m_sun.transform.position).normalized;
@@ -214,4 +217,46 @@ public class DayNightCycleController
 
         m_sun.intensity = Mathf.Lerp(m_sun.intensity, m_sunTargetIntensity, Time.deltaTime * m_intensitySmoothSpeed);
     }
+
+    //Can be disabled And set the m_seasonBlendFactor value manually
+    void UpdateSeasonalBlendFactor()
+    {
+        int newcurrentDay = ClimateDataSO.Instance.GetDateTimeYearData().DayOfYear;
+        if (m_currentDay == newcurrentDay) return;
+
+        m_currentDay = newcurrentDay;
+
+        int year = ClimateDataSO.Instance.GetDateTimeYearData().Year;
+        int daysInYear = DateTime.IsLeapYear(year) ? 366 : 365;
+
+        int currentSeasonStart = m_seasonStartDayOfYear[m_currentSeason];
+        int nextSeasonStart = m_seasonStartDayOfYear[m_nextSeason];
+
+        // Handle wrap-around from Winter → Spring
+        if (nextSeasonStart <= currentSeasonStart)
+            nextSeasonStart += daysInYear;
+
+        float seasonLength = nextSeasonStart - currentSeasonStart;
+        float blendWindow = 30f;
+       
+        // Days into the current season
+        float daysIntoSeason = m_currentDay - currentSeasonStart;
+        if (daysIntoSeason < 0)
+            daysIntoSeason += daysInYear;
+
+        // Calculate blend progress in final blendWindow days
+        if (daysIntoSeason >= seasonLength - blendWindow)
+        {
+            float blendStart = seasonLength - blendWindow;
+            float blendProgress = (daysIntoSeason - blendStart) / blendWindow;
+            m_seasonBlendFactor = Mathf.Clamp01(blendProgress);
+        }
+        else
+        {
+            m_seasonBlendFactor = 0f;
+        }
+
+    }
+    
+   
 }
