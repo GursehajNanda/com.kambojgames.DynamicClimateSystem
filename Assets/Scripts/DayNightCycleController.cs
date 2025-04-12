@@ -59,14 +59,15 @@ public class DayNightCycleController
             new Keyframe(1f, 0.1f)
         );
 
+
     private AnimationCurve m_nightLightFadeCurve = new AnimationCurve(
-            new Keyframe(0f, 0f),              // Midnight - off
-            new Keyframe(0.167f, 0f),          // 4 AM - still off
-            new Keyframe(0.25f, 1f),           // 6 AM - lights fade out
-            new Keyframe(0.79f, 0f),           // 19 PM - lights start fading in
-            new Keyframe(0.875f, 1f),          // 21 PM - fully on
-            new Keyframe(1f, 1f)               // End of day - still on
-        );
+        new Keyframe(0f, 1f),           // Midnight - ON
+        new Keyframe(0.167f, 0.7f),     // 04:00 — fading down
+        new Keyframe(0.25f, 0f),        // 6 AM - lights fade OUT
+        new Keyframe(0.75f, 0.4f),        // 6PM  — early evening (starting to rise) 
+        new Keyframe(0.79f, 0.7f),        // ~7 PM  — getting brighter
+        new Keyframe(1f, 1f)            // Midnight - ON
+    );
 
     private Dictionary<Season, int> m_seasonStartDayOfYear = new Dictionary<Season, int>
         {
@@ -78,6 +79,7 @@ public class DayNightCycleController
 
     private KeyValuePairList<Season, AnimationCurve> m_seasonCurves;
     private KeyValuePairList<Season, Gradient> m_seasonGradients;
+    private Dictionary<Light2D, float> m_lightBaseIntensities = new Dictionary<Light2D, float>();
 
     private Season m_nextSeason;
     private DayPeriod m_currentPeriod;
@@ -86,6 +88,7 @@ public class DayNightCycleController
     float m_sunTargetIntensity = 1f;
     private float m_inGameTime; // 0 - 24
     private int m_currentDay;
+
     private bool IsInitialzied = false;
 
 
@@ -103,6 +106,14 @@ public class DayNightCycleController
         m_seasonGradients.Add(Season.Summer, ClimateDataSO.Instance.SummerColorGradient);
         m_seasonGradients.Add(Season.Autumn, ClimateDataSO.Instance.AutumnColorGradient);
         m_seasonGradients.Add(Season.Winter, ClimateDataSO.Instance.WinterColorGradient);
+
+        foreach (var light in m_nightLights)
+        {
+            if (!m_lightBaseIntensities.ContainsKey(light))
+            {
+                m_lightBaseIntensities[light] = light.intensity;
+            }
+        }
 
         m_currentDay = ClimateDataSO.Instance.GetDateTimeYearData().Day;
         UpdateSeasonalCurves();
@@ -162,12 +173,16 @@ public class DayNightCycleController
     }
 
     void UpdateNightLights()
-    {     
+    {
         float t = m_inGameTime / 24f;
         float fadeFactor = Mathf.Clamp01(m_nightLightFadeCurve.Evaluate(t));
+
         foreach (var light in m_nightLights)
         {
-            light.intensity = fadeFactor;
+            if (m_lightBaseIntensities.TryGetValue(light, out float baseIntensity))
+            {
+                light.intensity = baseIntensity * fadeFactor;
+            }
         }
     }
 
