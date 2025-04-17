@@ -181,7 +181,16 @@ public class DayNightCycleController
         {
             if (m_lightBaseIntensities.TryGetValue(light, out float baseIntensity))
             {
-                light.intensity = baseIntensity * fadeFactor;
+                FlickerLight2D flickerLight = light?.GetComponent<FlickerLight2D>();
+                if (flickerLight)
+                {
+                    light.intensity = flickerLight.CurrentIntensity * fadeFactor;
+                }
+                else
+                {
+                    light.intensity = baseIntensity * fadeFactor;
+                }
+                
             }
         }
     }
