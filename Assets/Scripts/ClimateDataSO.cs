@@ -18,20 +18,27 @@ public class ClimateDataSO : ScriptableObject
     [SerializeField] private int m_minute;
 
 
-    [Header("Season Data")]
+    [Header("Seasonal Day Light")]
     [SerializeField] private Gradient m_summerColorGradient;
     [SerializeField] private Gradient m_winterColorGradient;
     [SerializeField] private Gradient m_springColorGradient;
     [SerializeField] private Gradient m_autumnColorGradient;
 
+
+
+
+
     private DayPeriod m_dayPeriod;
     private Season m_currentSeason;
     private static ClimateDataSO m_instance;
+    private Material m_seasonMaterial;
 
     public Gradient SummerColorGradient => m_summerColorGradient;
     public Gradient WinterColorGradient => m_winterColorGradient;
     public Gradient SpringColorGradient => m_springColorGradient;
     public Gradient AutumnColorGradient => m_autumnColorGradient;
+
+
 
     private void OnValidate()
     {
@@ -64,6 +71,10 @@ public class ClimateDataSO : ScriptableObject
             }
             return m_instance;
         }
+    }
+    private void OnEnable()
+    {
+        m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
     }
 
     public void SetYear(int Year)
@@ -116,6 +127,11 @@ public class ClimateDataSO : ScriptableObject
     public void SetCurrentSeason(Season season)
     {
         m_currentSeason = season;
+    }
+
+    public void SetMaterialSesaonalBlend(float blendFactor)
+    {
+       m_seasonMaterial.SetFloat("_BlendFactor", blendFactor);
     }
 
     public DateTime GetDateTimeYearData()
