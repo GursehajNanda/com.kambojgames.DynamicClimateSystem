@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.Tilemaps;
 using KambojGames.Utilities2D;
 
 
@@ -10,8 +9,9 @@ using KambojGames.Utilities2D;
 public class SeasonCycleController
 {
     private Light2D m_sun;
-    Light2D m_globalLight;
-    private KeyValuePairList<Season, AnimationCurve> m_seasonCurves;
+    private Light2D m_moon;
+    private KeyValuePairList<Season, AnimationCurve> m_seasonDayCurves;
+    private KeyValuePairList<Season, AnimationCurve> m_seasonNightCurves;
     private KeyValuePairList<Season, Gradient> m_seasonGradients;
     private float m_inGameTime;
     private Season m_currentSeason;
@@ -19,65 +19,126 @@ public class SeasonCycleController
     private float m_seasonBlendFactor = 0.5f;
     private int m_currentDay;
     private bool m_isInitialzied = false;
-    
-    private AnimationCurve m_summerCurve = new AnimationCurve(
+
+    private AnimationCurve m_summerSunCurve = new AnimationCurve(
         new Keyframe(0f, 0.0f),  // midnight - dim
-        new Keyframe(0.25f, 0.8f), // 6 AM
-        new Keyframe(0.5f, 1f),   // noon - peak light
-        new Keyframe(0.75f, 0.8f), // 6 PM
-        new Keyframe(1f, 0.0f)   // midnight again
+        new Keyframe(0.1875f, 0.03f), // pre dawn 04:30 
+        new Keyframe(0.25f, 0.7f), // 6 AM
+        new Keyframe(0.5f, 0.9f),   // noon - peak light
+        new Keyframe(0.75f, 0.7f), // 6 PM
+        new Keyframe(0.89f, 0.0f)   // Around 9:36 night again
    );
 
-    //Make two curves 1 for ambient and 1 for global
-    private AnimationCurve m_winterCurve = new AnimationCurve(
-            new Keyframe(0f, 0.0f),
-            new Keyframe(0.3f, 0.4f),
-            new Keyframe(0.5f, 0.7f),
-            new Keyframe(0.7f, 0.4f),
-            new Keyframe(1f, 0.0f)
-        );
+    private AnimationCurve m_springSunCurve = new AnimationCurve(
+        new Keyframe(0f, 0.0f),
+        new Keyframe(0.20f, 0.025f),
+        new Keyframe(0.25f, 0.6f),
+        new Keyframe(0.5f, 0.8f),
+        new Keyframe(0.75f, 0.6f),
+        new Keyframe(0.85f, 0.0f)
+   );
 
-    private AnimationCurve m_springCurve = new AnimationCurve(
-            new Keyframe(0f, 0.0f),
-            new Keyframe(0.25f, 0.6f),
-            new Keyframe(0.5f, 0.9f),
-            new Keyframe(0.75f, 0.6f),
-            new Keyframe(1f, 0.0f)
-        );
-    private AnimationCurve m_autumnCurve = new AnimationCurve(
-            new Keyframe(0f, 0.0f),
-            new Keyframe(0.3f, 0.5f),
-            new Keyframe(0.5f, 0.8f),
-            new Keyframe(0.7f, 0.5f),
-            new Keyframe(1f, 0.0f)
-        );
 
+    private AnimationCurve m_winterSunCurve = new AnimationCurve(
+        new Keyframe(0f, 0.0f),
+        new Keyframe(0.2f, 0.0f),
+        new Keyframe(0.3f, 0.4f),
+        new Keyframe(0.5f, 0.65f),
+        new Keyframe(0.68f, 0.4f),
+        new Keyframe(0.76f, 0.0f)
+   );
+
+    private AnimationCurve m_autumnSunCurve = new AnimationCurve(
+        new Keyframe(0f, 0.0f),
+        new Keyframe(0.20f, 0.01f),
+        new Keyframe(0.3f, 0.5f),
+        new Keyframe(0.5f, 0.75f),
+        new Keyframe(0.7f, 0.5f),
+        new Keyframe(0.80f, 0.0f)
+   );
+
+
+
+
+    private AnimationCurve m_summerMoonCurve = new AnimationCurve(
+        new Keyframe(0f, 0.2f),       // Midnight - already visible
+        new Keyframe(0.1875f, 0.05f), // Just before sunrise
+        new Keyframe(0.25f, 0.0f),    // Sunrise
+        new Keyframe(0.89f, 0.0f),    // Sunset starts
+        new Keyframe(0.95f, 0.1f),    // Moon is rising
+        new Keyframe(1f, 0.2f)        // Midnight again - peak moonlight
+   );
+
+    private AnimationCurve m_autumnMoonCurve = new AnimationCurve(
+        new Keyframe(0f, 0.25f),
+        new Keyframe(0.2f, 0.05f),
+        new Keyframe(0.3f, 0.0f),
+        new Keyframe(0.80f, 0.0f),    // Sun has set
+        new Keyframe(0.9f, 0.15f),
+        new Keyframe(1f, 0.25f)
+    );
+
+    private AnimationCurve m_winterMoonCurve = new AnimationCurve(
+        new Keyframe(0f, 0.3f),
+        new Keyframe(0.2f, 0.05f),
+        new Keyframe(0.3f, 0.0f),
+        new Keyframe(0.76f, 0.0f),    // Sun goes down
+        new Keyframe(0.85f, 0.1f),
+        new Keyframe(1f, 0.3f)
+    );
+
+    private AnimationCurve m_springMoonCurve = new AnimationCurve(
+      new Keyframe(0f, 0.22f),
+      new Keyframe(0.20f, 0.05f),
+      new Keyframe(0.25f, 0.0f),
+      new Keyframe(0.85f, 0.0f),    // After sunset
+      new Keyframe(0.92f, 0.18f),
+      new Keyframe(1f, 0.22f)
+  );
+
+
+
+
+    private readonly Dictionary<Season, Vector2> m_sunActiveTimeRanges = new Dictionary<Season, Vector2>
+    {
+        { Season.Summer, new Vector2(0.1875f, 0.89f) },
+        { Season.Autumn, new Vector2(0.20f, 0.80f) },
+        { Season.Winter, new Vector2(0.25f, 0.75f) }, // example range for winter
+        { Season.Spring, new Vector2(0.20f, 0.85f) }
+    };
 
     private Dictionary<Season, int> m_seasonStartDayOfYear = new Dictionary<Season, int>
-        {
-            { Season.Spring, 60 },   // March 1
-            { Season.Summer, 151 },  // June 1
-            { Season.Autumn, 243 },  // Sept 1
-            { Season.Winter, 334 }   // Dec 1
-        };
+    {
+        { Season.Spring, 60 },   // March 1
+        { Season.Summer, 151 },  // June 1
+        { Season.Autumn, 243 },  // Sept 1
+        { Season.Winter, 334 }   // Dec 1
+    };
 
     private Dictionary<Season, int> m_seasonPeakDayOfYear = new Dictionary<Season, int>
-        {
-            { Season.Spring, 105 },   // April 15
-            { Season.Summer, 196 },   // July 15
-            { Season.Autumn, 288 },   // Oct 15
-            { Season.Winter, 15 }     // Jan 15
-        };
+    {
+         { Season.Spring, 105 },   // April 15
+         { Season.Summer, 196 },   // July 15
+         { Season.Autumn, 288 },   // Oct 15
+         { Season.Winter, 15 }     // Jan 15
+    };
 
-    public void Initialize(Light2D sun,Light2D globalLight)
+    public void Initialize(Light2D sun, Light2D moon)
     {
         m_sun = sun;
-        m_globalLight = globalLight;
-        m_seasonCurves = new KeyValuePairList<Season, AnimationCurve>();
-        m_seasonCurves.Add(Season.Spring, m_springCurve);
-        m_seasonCurves.Add(Season.Summer, m_summerCurve);
-        m_seasonCurves.Add(Season.Autumn, m_autumnCurve);
-        m_seasonCurves.Add(Season.Winter, m_winterCurve);
+        m_moon = moon;
+        m_seasonDayCurves = new KeyValuePairList<Season, AnimationCurve>();
+        m_seasonDayCurves.Add(Season.Spring, m_springSunCurve);
+        m_seasonDayCurves.Add(Season.Summer, m_summerSunCurve);
+        m_seasonDayCurves.Add(Season.Autumn, m_autumnSunCurve);
+        m_seasonDayCurves.Add(Season.Winter, m_winterSunCurve);
+
+        m_seasonNightCurves =  new KeyValuePairList<Season, AnimationCurve>();
+        m_seasonNightCurves.Add(Season.Spring, m_springMoonCurve);
+        m_seasonNightCurves.Add(Season.Summer, m_summerMoonCurve);
+        m_seasonNightCurves.Add(Season.Autumn, m_autumnMoonCurve);
+        m_seasonNightCurves.Add(Season.Winter, m_winterMoonCurve);
+
 
         m_seasonGradients = new KeyValuePairList<Season, Gradient>();
         m_seasonGradients.Add(Season.Spring, ClimateDataSO.Instance.SpringColorGradient);
@@ -101,35 +162,60 @@ public class SeasonCycleController
 
         // Convert hour + minute into float (e.g., 14.5f for 2:30 PM)
         m_inGameTime = currentTime.Hour + (currentTime.Minute / 60f);
+        float t = m_inGameTime / 24f;
 
         UpdateSeasonalCurves();
-        UpdateSeasonalLighting();
+        UpdateSeasonalAmbientLightning(t);
+        UpdateSunSeasonalLighting(t);
+        UpdateMoonSeasonalLighting(t);
         UpdateSeasonalBlend();
        
 
     }
 
-    void UpdateSeasonalLighting()
+    void UpdateSeasonalAmbientLightning(float ratio)
     {
-        float t = m_inGameTime / 24f;
-
-
-        AnimationCurve currentCurve = m_seasonCurves.GetValueByKey(m_currentSeason);
-        AnimationCurve nextCurve = m_seasonCurves.GetValueByKey(m_nextSeason);
-
-        float currentValue = currentCurve.Evaluate(t);
-        float nextValue = nextCurve.Evaluate(t);
-
-        float blended = Mathf.Lerp(currentValue, nextValue, m_seasonBlendFactor);
-        m_sun.intensity = blended;
-
         Gradient currentGradient = m_seasonGradients.GetValueByKey(m_currentSeason);
         Gradient nextGradient = m_seasonGradients.GetValueByKey(m_nextSeason);
 
-        Color currentColor = currentGradient.Evaluate(t);
-        Color nextColor = nextGradient.Evaluate(t);
+        Color currentColor = currentGradient.Evaluate(ratio);
+        Color nextColor = nextGradient.Evaluate(ratio);
 
-        m_globalLight.color = Color.Lerp(currentColor, nextColor, m_seasonBlendFactor);
+        if (m_sunActiveTimeRanges.TryGetValue(m_currentSeason, out var range))
+        {
+            bool isSunTime = ratio > range.x && ratio <= range.y;
+
+            if (isSunTime)
+                m_sun.color = Color.Lerp(currentColor, nextColor, m_seasonBlendFactor);
+            else
+                m_moon.color = Color.Lerp(currentColor, nextColor, m_seasonBlendFactor);
+        }
+
+    }
+
+    void UpdateSunSeasonalLighting(float ratio)
+    {
+      
+        AnimationCurve currentCurve = m_seasonDayCurves.GetValueByKey(m_currentSeason);
+        AnimationCurve nextCurve = m_seasonDayCurves.GetValueByKey(m_nextSeason);
+
+        float currentValue = currentCurve.Evaluate(ratio);
+        float nextValue = nextCurve.Evaluate(ratio);
+
+        float blended = Mathf.Lerp(currentValue, nextValue, m_seasonBlendFactor);
+        m_sun.intensity = blended;
+    }
+
+    void UpdateMoonSeasonalLighting(float ratio)
+    {
+        AnimationCurve currentCurve = m_seasonNightCurves.GetValueByKey(m_currentSeason);
+        AnimationCurve nextCurve = m_seasonNightCurves.GetValueByKey(m_nextSeason);
+
+        float currentValue = currentCurve.Evaluate(ratio);
+        float nextValue = nextCurve.Evaluate(ratio);
+
+        float blended = Mathf.Lerp(currentValue, nextValue, m_seasonBlendFactor);
+        m_moon.intensity = blended;
     }
 
 

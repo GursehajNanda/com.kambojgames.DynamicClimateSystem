@@ -30,28 +30,53 @@ public class DayNightCycleController
         new Keyframe(1f, 1f)            // Midnight - ON
     );
 
-    [SerializeField]
+ 
     private AnimationCurve m_ambientCurve = new AnimationCurve(
         new Keyframe(0f, 0.1f),    // Midnight
-        new Keyframe(0.25f, 0.3f), // Dawn
-        new Keyframe(0.5f, 0.5f),  // Noon
-        new Keyframe(0.75f, 0.3f), // Dusk
+        new Keyframe(0.25f, 0.25f), // Dawn
+        new Keyframe(0.5f, 0.4f),  // Noon
+        new Keyframe(0.75f, 0.25f), // Dusk
         new Keyframe(1f, 0.1f)     // Night again
     );
 
+
+
+    private AnimationCurve m_shadowLength = new AnimationCurve(
+      new Keyframe(0f, 0.0f),  
+      new Keyframe(0.1875f, 0.2f), 
+      new Keyframe(0.25f, 0.4f),
+      new Keyframe(0.5f, 1.0f),  
+      new Keyframe(0.75f, 0.4f), 
+      new Keyframe(0.89f, 0.0f)   
+ );
+
+    //Bug it does full rotation when it goes from 6am to 12 pm
+    private AnimationCurve m_shadowAngle = new AnimationCurve(
+      new Keyframe(0f, 0.5f),     // Midnight: shadow downward
+      new Keyframe(0.25f, 0.75f), // 6 AM: sun east, shadow west (left)
+      new Keyframe(0.5f, 0.0f),   // Noon: sun overhead (angle up)
+      new Keyframe(0.75f, 0.25f), // 6 PM: sun west, shadow east (right)
+      new Keyframe(1f, 0.5f)      // Midnight: back to downward
+  );
+    
+
+
+
     private Light2D m_sun;
+    private Light2D m_moon;
     private Light2D m_globalLight;
     private Dictionary<Light2D, float> m_lightBaseIntensities = new Dictionary<Light2D, float>();
+    private List<ShadowInstance> m_shadows;
     private DayPeriod m_currentPeriod;
     private float m_inGameTime; // 0 - 24
     private bool m_isInitialzied = false;
 
 
-    public void Initialize(Light2D sun,Light2D globalLight)
+    public void Initialize(Light2D sun, Light2D moon,Light2D globalLight)
     {
         m_sun = sun;
+        m_moon = moon;
         m_globalLight = globalLight;
-       
 
         foreach (var light in m_nightLights)
         {
@@ -60,6 +85,8 @@ public class DayNightCycleController
                 m_lightBaseIntensities[light] = light.intensity;
             }
         }
+
+        m_shadows = ClimateDataSO.Instance.Shadows;
 
         m_isInitialzied = true;
     }
@@ -73,26 +100,36 @@ public class DayNightCycleController
 
         // Convert hour + minute into float (e.g., 14.5f for 2:30 PM)
         m_inGameTime = currentTime.Hour + (currentTime.Minute / 60f);
+        float t = m_inGameTime / 24f;
 
         UpdateSunPosition();
+        UpdateMoonPosition();
         UpdateDayPeriod();
-        UpdateNightLights();
-        UpdateAmbientIntensity();
+        UpdateNightLights(t);
+        UpdateAmbientIntensity(t);
+        UpdateShadow(t);
     }
 
     void UpdateSunPosition()
     {
-        float angle = ((m_inGameTime / 24f) * 360f) - 90f; // Shift so noon is at top (90° up)
+        float angle = ((m_inGameTime / 24f) * 360f) - 90f; 
         Vector3 offset = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)) * m_orbitRadius;
         m_sun.transform.position = m_orbitCenter.position + offset;
         m_sun.transform.right = (m_orbitCenter.position - m_sun.transform.position).normalized;
     }
 
-   
-    void UpdateNightLights()
+
+    void UpdateMoonPosition()
     {
-        float t = m_inGameTime / 24f;
-        float fadeFactor = Mathf.Clamp01(m_nightLightFadeCurve.Evaluate(t));
+        float moonAngle = ((m_inGameTime / 24f) * 360f) + 90f;
+        Vector3 moonOffset = new Vector3(Mathf.Cos(moonAngle * Mathf.Deg2Rad), Mathf.Sin(moonAngle * Mathf.Deg2Rad)) * m_orbitRadius;
+        m_moon.transform.position = m_orbitCenter.position + moonOffset;
+        m_moon.transform.right = (m_orbitCenter.position - m_moon.transform.position).normalized;
+    }
+
+    void UpdateNightLights(float ratio)
+    {
+        float fadeFactor = Mathf.Clamp01(m_nightLightFadeCurve.Evaluate(ratio));
 
         foreach (var light in m_nightLights)
         {
@@ -137,10 +174,26 @@ public class DayNightCycleController
 
     }
 
-    void UpdateAmbientIntensity()
+    void UpdateShadow(float ratio)
     {
-        float t = m_inGameTime / 24f;
-        float ambientTargetIntensity = m_ambientCurve.Evaluate(t);
+        var currentShadowAngle = m_shadowAngle.Evaluate(ratio);
+        var currentShadowLength = m_shadowLength.Evaluate(ratio);
+
+        var opposedAngle = currentShadowAngle + 0.5f;
+        while (currentShadowAngle > 1.0f)
+            currentShadowAngle -= 1.0f;
+
+        foreach (var shadow in m_shadows)
+        {
+            var t = shadow.transform;
+            t.eulerAngles = new Vector3(0, 0, opposedAngle * 360.0f); //0.25*360 = 80 degrees
+            t.localScale = new Vector3(1, 1f * shadow.BaseLength * currentShadowLength, 1);
+        }
+    }
+
+    void UpdateAmbientIntensity(float ratio)
+    {
+        float ambientTargetIntensity = m_ambientCurve.Evaluate(ratio);
         m_globalLight.intensity = Mathf.Lerp(m_globalLight.intensity, ambientTargetIntensity, Time.deltaTime * m_intensitySmoothSpeed);
     }
   

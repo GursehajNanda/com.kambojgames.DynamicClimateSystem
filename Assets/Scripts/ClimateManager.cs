@@ -7,6 +7,7 @@ public class ClimateManager : MonoBehaviour
     [SerializeField] private float m_minutesToLastADay;
     [SerializeField] private Light2D m_globalLight;
     [SerializeField] private Light2D m_sun;
+    [SerializeField] private Light2D m_moon;
     [SerializeField] private ClimateDataSO m_climateDataSO;
     [SerializeField] DayNightCycleController m_dayAndNightController;
 
@@ -19,8 +20,8 @@ public class ClimateManager : MonoBehaviour
     private void Start()
     {
         m_timeAndDayManager = new TimeAndDayManager(m_minutesToLastADay);
-        m_dayAndNightController.Initialize(m_sun,m_globalLight);
-        m_seasonCycleController.Initialize(m_sun, m_globalLight);
+        m_dayAndNightController.Initialize(m_sun, m_moon,m_globalLight);
+        m_seasonCycleController.Initialize(m_sun, m_moon);
     }
 
     private void Update()

@@ -53,3 +53,9 @@ TagManager:
   - name: AbovePlayer
     uniqueID: 3036820311
     locked: 0
+  - name: Effects
+    uniqueID: 4174712859
+    locked: 0
+  - name: Weather
+    uniqueID: 3924739909
+    locked: 0

@@ -32,13 +32,15 @@ public class ClimateDataSO : ScriptableObject
     private Season m_currentSeason;
     private static ClimateDataSO m_instance;
     private Material m_seasonMaterial;
+    private List<ShadowInstance> m_shadows = new();
+
 
     public Gradient SummerColorGradient => m_summerColorGradient;
     public Gradient WinterColorGradient => m_winterColorGradient;
     public Gradient SpringColorGradient => m_springColorGradient;
     public Gradient AutumnColorGradient => m_autumnColorGradient;
 
-
+    public List<ShadowInstance> Shadows => m_shadows;
 
     private void OnValidate()
     {
@@ -147,6 +149,16 @@ public class ClimateDataSO : ScriptableObject
     public Season GetCurrentSeason()
     {
         return m_currentSeason;
+    }
+
+    public  void RegisterShadow(ShadowInstance shadow)
+    {
+        m_shadows.Add(shadow);
+    }
+
+    public void UnregisterShadow(ShadowInstance shadow)
+    {
+        m_shadows.Remove(shadow);
     }
 }
 
