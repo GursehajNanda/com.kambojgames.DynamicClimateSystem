@@ -33,7 +33,7 @@ public class ClimateDataSO : ScriptableObject
     private static ClimateDataSO m_instance;
     private Material m_seasonMaterial;
     private List<ShadowInstance> m_shadows = new();
-
+    private List<LightInterpolator> m_lightBlender = new();
 
     public Gradient SummerColorGradient => m_summerColorGradient;
     public Gradient WinterColorGradient => m_winterColorGradient;
@@ -41,6 +41,7 @@ public class ClimateDataSO : ScriptableObject
     public Gradient AutumnColorGradient => m_autumnColorGradient;
 
     public List<ShadowInstance> Shadows => m_shadows;
+    public List<LightInterpolator> LightBlender => m_lightBlender;
 
     private void OnValidate()
     {
@@ -159,6 +160,16 @@ public class ClimateDataSO : ScriptableObject
     public void UnregisterShadow(ShadowInstance shadow)
     {
         m_shadows.Remove(shadow);
+    }
+
+    public  void RegisterLightBlender(LightInterpolator interpolator)
+    {
+        m_lightBlender.Add(interpolator);
+    }
+
+    public void UnregisterLightBlender(LightInterpolator interpolator)
+    {
+        m_lightBlender.Remove(interpolator);
     }
 }
 

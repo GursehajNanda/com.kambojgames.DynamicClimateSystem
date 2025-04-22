@@ -50,6 +50,9 @@ TagManager:
   - name: Player
     uniqueID: 4182642541
     locked: 0
+  - name: BuildingColision
+    uniqueID: 1009233573
+    locked: 0
   - name: AbovePlayer
     uniqueID: 3036820311
     locked: 0

@@ -50,23 +50,24 @@ public class DayNightCycleController
       new Keyframe(0.89f, 0.0f)   
  );
 
-    //Bug it does full rotation when it goes from 6am to 12 pm
+ 
     private AnimationCurve m_shadowAngle = new AnimationCurve(
-      new Keyframe(0f, 0.5f),     // Midnight: shadow downward
-      new Keyframe(0.25f, 0.75f), // 6 AM: sun east, shadow west (left)
-      new Keyframe(0.5f, 0.0f),   // Noon: sun overhead (angle up)
-      new Keyframe(0.75f, 0.25f), // 6 PM: sun west, shadow east (right)
-      new Keyframe(1f, 0.5f)      // Midnight: back to downward
-  );
-    
+     new Keyframe(0f, 0.5f),       //180°
+     new Keyframe(0.25f, 0.75f),   //270°
+     new Keyframe(0.5f, 1.0f),     //360°
+     new Keyframe(0.75f, 1.25f),   //450°
+     new Keyframe(1f, 1.5f)        //540° 
+ );
+
 
 
 
     private Light2D m_sun;
     private Light2D m_moon;
     private Light2D m_globalLight;
-    private Dictionary<Light2D, float> m_lightBaseIntensities = new Dictionary<Light2D, float>();
-    private List<ShadowInstance> m_shadows;
+    private Dictionary<Light2D, float> m_lightBaseIntensities = new();
+    private List<ShadowInstance> m_shadows = new();
+    private List<LightInterpolator> m_lightBlenders = new();
     private DayPeriod m_currentPeriod;
     private float m_inGameTime; // 0 - 24
     private bool m_isInitialzied = false;
@@ -87,7 +88,7 @@ public class DayNightCycleController
         }
 
         m_shadows = ClimateDataSO.Instance.Shadows;
-
+        m_lightBlenders = ClimateDataSO.Instance.LightBlender;
         m_isInitialzied = true;
     }
 
@@ -176,18 +177,21 @@ public class DayNightCycleController
 
     void UpdateShadow(float ratio)
     {
-        var currentShadowAngle = m_shadowAngle.Evaluate(ratio);
-        var currentShadowLength = m_shadowLength.Evaluate(ratio);
-
-        var opposedAngle = currentShadowAngle + 0.5f;
-        while (currentShadowAngle > 1.0f)
-            currentShadowAngle -= 1.0f;
+        float currentShadowAngle = m_shadowAngle.Evaluate(ratio);
+        float opposedAngle = Mathf.Repeat(currentShadowAngle + 0.5f, 1f);
+        float currentShadowLength = m_shadowLength.Evaluate(ratio);
+        float rotationDegrees = opposedAngle * 360f;
 
         foreach (var shadow in m_shadows)
         {
             var t = shadow.transform;
-            t.eulerAngles = new Vector3(0, 0, opposedAngle * 360.0f); //0.25*360 = 80 degrees
-            t.localScale = new Vector3(1, 1f * shadow.BaseLength * currentShadowLength, 1);
+            t.rotation = Quaternion.AngleAxis(rotationDegrees, Vector3.forward);
+            t.localScale = new Vector3(1, shadow.BaseLength * currentShadowLength, 1);
+        }
+      
+        foreach (var handler in m_lightBlenders)
+        {
+            handler.SetRatio(ratio);
         }
     }
 
