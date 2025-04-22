@@ -42,8 +42,7 @@ public class CloudController
 
     private void SpawnCloud()
     {
-        Debug.Log("Spawn");
-
+      
         int i = UnityEngine.Random.Range(0, m_cloudsKeys.Count);
         float spawnPosY = UnityEngine.Random.Range(m_cloudSpawnYRange.x, m_cloudSpawnYRange.y);
         Vector2 cloudSpawnPos = new Vector2(m_cloudspawnPosX, spawnPosY);
