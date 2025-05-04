@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: ClimateData
   m_EditorClassIdentifier: 
   m_year: 1
-  m_month: 7
-  m_monthDay: 6
-  m_hour: 19
-  m_minute: 11
+  m_month: 6
+  m_monthDay: 13
+  m_hour: 7
+  m_minute: 14
   m_summerColorGradient:
     serializedVersion: 2
     key0: {r: 0.031309698, g: 0.051121764, b: 0.59568727, a: 1}
@@ -137,3 +137,4 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
+  m_cloudsStrength: 1

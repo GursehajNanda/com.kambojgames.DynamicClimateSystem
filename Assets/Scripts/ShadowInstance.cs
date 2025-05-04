@@ -20,4 +20,6 @@ public class ShadowInstance : MonoBehaviour
     {
         ClimateDataSO.Instance.UnregisterShadow(this);
     }
+
+   
 }

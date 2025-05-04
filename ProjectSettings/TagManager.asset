@@ -47,6 +47,9 @@ TagManager:
   - name: AboveGround
     uniqueID: 3102741139
     locked: 0
+  - name: Shadows
+    uniqueID: 2702935583
+    locked: 0
   - name: Player
     uniqueID: 4182642541
     locked: 0

@@ -24,7 +24,8 @@ public class ClimateDataSO : ScriptableObject
     [SerializeField] private Gradient m_springColorGradient;
     [SerializeField] private Gradient m_autumnColorGradient;
 
-
+    [Range(0, 1)]
+    [SerializeField] private float m_cloudsStrength; //Remove Serialized later
 
 
 
@@ -42,6 +43,8 @@ public class ClimateDataSO : ScriptableObject
 
     public List<ShadowInstance> Shadows => m_shadows;
     public List<LightInterpolator> LightBlender => m_lightBlender;
+
+    public float CloudsStrength => m_cloudsStrength;
 
     private void OnValidate()
     {

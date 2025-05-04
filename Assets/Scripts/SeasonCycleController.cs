@@ -164,10 +164,13 @@ public class SeasonCycleController
         m_inGameTime = currentTime.Hour + (currentTime.Minute / 60f);
         float t = m_inGameTime / 24f;
 
+        float cloudStrength = ClimateDataSO.Instance.CloudsStrength;
+        float cloudStrengthFactor =  1.0f - cloudStrength;
+
         UpdateSeasonalCurves();
         UpdateSeasonalAmbientLightning(t);
-        UpdateSunSeasonalLighting(t);
-        UpdateMoonSeasonalLighting(t);
+        UpdateSunSeasonalLighting(t, cloudStrengthFactor);
+        UpdateMoonSeasonalLighting(t, cloudStrengthFactor);
         UpdateSeasonalBlend();
        
 
@@ -193,9 +196,10 @@ public class SeasonCycleController
 
     }
 
-    void UpdateSunSeasonalLighting(float ratio)
+    void UpdateSunSeasonalLighting(float ratio, float cloudStrengthFactor)
     {
       
+
         AnimationCurve currentCurve = m_seasonDayCurves.GetValueByKey(m_currentSeason);
         AnimationCurve nextCurve = m_seasonDayCurves.GetValueByKey(m_nextSeason);
 
@@ -204,10 +208,13 @@ public class SeasonCycleController
 
         float blended = Mathf.Lerp(currentValue, nextValue, m_seasonBlendFactor);
         m_sun.intensity = blended;
+        m_sun.intensity *= cloudStrengthFactor;
     }
 
-    void UpdateMoonSeasonalLighting(float ratio)
+    void UpdateMoonSeasonalLighting(float ratio, float cloudStrengthFactor)
     {
+       
+
         AnimationCurve currentCurve = m_seasonNightCurves.GetValueByKey(m_currentSeason);
         AnimationCurve nextCurve = m_seasonNightCurves.GetValueByKey(m_nextSeason);
 
@@ -216,6 +223,7 @@ public class SeasonCycleController
 
         float blended = Mathf.Lerp(currentValue, nextValue, m_seasonBlendFactor);
         m_moon.intensity = blended;
+        m_moon.intensity *= cloudStrengthFactor;
     }
 
 
