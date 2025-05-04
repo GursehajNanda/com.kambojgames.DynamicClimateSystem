@@ -33,6 +33,7 @@ public class ClimateDataSO : ScriptableObject
     private Season m_currentSeason;
     private static ClimateDataSO m_instance;
     private Material m_seasonMaterial;
+    private Material m_seasonVegetationMaterial;
     private List<ShadowInstance> m_shadows = new();
     private List<LightInterpolator> m_lightBlender = new();
 
@@ -81,6 +82,7 @@ public class ClimateDataSO : ScriptableObject
     private void OnEnable()
     {
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
+        m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial"); ;
     }
 
     public void SetYear(int Year)
@@ -138,6 +140,7 @@ public class ClimateDataSO : ScriptableObject
     public void SetMaterialSesaonalBlend(float blendFactor)
     {
        m_seasonMaterial.SetFloat("_BlendFactor", blendFactor);
+       m_seasonVegetationMaterial.SetFloat("_BlendFactor", blendFactor);
     }
 
     public DateTime GetDateTimeYearData()

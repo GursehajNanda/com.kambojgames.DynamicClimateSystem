@@ -130,6 +130,7 @@ public class DayNightCycleController
 
     void UpdateNightLights(float ratio)
     {
+        float cloudStrength = ClimateDataSO.Instance.CloudsStrength;
         float fadeFactor = Mathf.Clamp01(m_nightLightFadeCurve.Evaluate(ratio));
 
         foreach (var light in m_nightLights)
@@ -145,9 +146,15 @@ public class DayNightCycleController
                 {
                     light.intensity = baseIntensity * fadeFactor;
                 }
-                
+
+                light.intensity += cloudStrength * 0.5f;
             }
+
+            
         }
+
+       
+
     }
 
     void UpdateDayPeriod()

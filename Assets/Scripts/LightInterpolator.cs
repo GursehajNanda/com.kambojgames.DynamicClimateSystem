@@ -62,10 +62,7 @@ public class LightInterpolator : MonoBehaviour
         TargetLight.color = Color.Lerp(start.color, end.color, t);
         TargetLight.intensity = Mathf.Lerp(start.intensity, end.intensity, t);
 
-        if (cloudStrength > 0)
-        {
-            TargetLight.intensity += cloudStrength*0.1f;
-        }
+        TargetLight.intensity += cloudStrength * 0.1f;
 
 
         var startPath = start.shapePath;
