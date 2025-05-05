@@ -16,16 +16,17 @@ public class LightInterpolator : MonoBehaviour
     public Light2D TargetLight;
     public LightFrame[] LightFrames;
 
+
     private void OnEnable()
     {
-        ClimateDataSO.Instance.RegisterLightBlender(this);
+        ClimateData.Instance.RegisterLightBlender(this);
         SetRatio(0);
         DisableAllLights();
     }
 
     private void OnDisable()
     {
-        ClimateDataSO.Instance.UnregisterLightBlender(this);
+        ClimateData.Instance.UnregisterLightBlender(this);
     }
 
     public void SetRatio(float t)
@@ -57,7 +58,7 @@ public class LightInterpolator : MonoBehaviour
 
     void Interpolate(Light2D start, Light2D end, float t)
     {
-       float cloudStrength = ClimateDataSO.Instance.CloudsStrength;
+       float cloudStrength = ClimateData.Instance.CloudsStrength;
 
         TargetLight.color = Color.Lerp(start.color, end.color, t);
         TargetLight.intensity = Mathf.Lerp(start.intensity, end.intensity, t);

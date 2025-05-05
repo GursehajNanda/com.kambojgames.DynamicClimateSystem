@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 
 [CreateAssetMenu(fileName = "ClimateData", menuName = "ScriptableObject/ClimateData")]
-public class ClimateDataSO : ScriptableObject
+public class ClimateData : ScriptableObject
 {
     [Header("Date Time And Day Data")]
     [Min(1)]
@@ -24,6 +24,9 @@ public class ClimateDataSO : ScriptableObject
     [SerializeField] private Gradient m_springColorGradient;
     [SerializeField] private Gradient m_autumnColorGradient;
 
+    [Header("Weather")]
+    [SerializeField] List<Weather> m_weatherObjects;
+
     [Range(0, 1)]
     [SerializeField] private float m_cloudsStrength; //Remove Serialized later
 
@@ -31,11 +34,12 @@ public class ClimateDataSO : ScriptableObject
 
     private DayPeriod m_dayPeriod;
     private Season m_currentSeason;
-    private static ClimateDataSO m_instance;
+    private static ClimateData m_instance;
     private Material m_seasonMaterial;
     private Material m_seasonVegetationMaterial;
     private List<ShadowInstance> m_shadows = new();
     private List<LightInterpolator> m_lightBlender = new();
+    private Weather m_currentWeather;
 
     public Gradient SummerColorGradient => m_summerColorGradient;
     public Gradient WinterColorGradient => m_winterColorGradient;
@@ -46,6 +50,10 @@ public class ClimateDataSO : ScriptableObject
     public List<LightInterpolator> LightBlender => m_lightBlender;
 
     public float CloudsStrength => m_cloudsStrength;
+
+    public Weather CurrentWeather => m_currentWeather;
+
+    private Timer m_weatherCooldownTimer;
 
     private void OnValidate()
     {
@@ -63,27 +71,60 @@ public class ClimateDataSO : ScriptableObject
             m_monthDay = 1;
     }
 
-    public static ClimateDataSO Instance
+    public static ClimateData Instance
     {
         get
         {
             if (m_instance == null)
             {
-                m_instance = Resources.Load<ClimateDataSO>("ClimateData");
+                m_instance = Resources.Load<ClimateData>("ClimateData");
                 if(m_instance == null)
                 {
-                    Debug.LogError("ClimateDataSO instance not found in Resources.");
+                    Debug.LogError("ClimateData instance not found in Resources.");
                 }
-                
+
+                m_instance.Initialize();
             }
             return m_instance;
         }
     }
-    private void OnEnable()
+
+    private void Initialize()
     {
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
-        m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial"); ;
+        m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");
+
+        SelectWeather();
+        
     }
+
+    private void StartNextWeatherEvent()
+    {
+        float MinTime = CurrentWeather.WeatherTimeRange.x;
+        float MaxTime = CurrentWeather.WeatherTimeRange.y;
+
+        float nextWeatherSelectionTime = UnityEngine.Random.Range(MinTime, MaxTime);
+
+        m_weatherCooldownTimer = new Timer(0f, nextWeatherSelectionTime, null, SelectWeather);
+        m_weatherCooldownTimer.Start();
+    }
+
+    public void UpdateWeather()
+    {
+        m_weatherCooldownTimer.Update(Time.deltaTime);
+    }
+
+    private void SelectWeather()
+    {
+        foreach (Weather weather in m_weatherObjects)
+        {
+            weather.SelectWeather();
+        }
+
+        StartNextWeatherEvent();
+    }
+
+
 
     public void SetYear(int Year)
     {
@@ -158,7 +199,8 @@ public class ClimateDataSO : ScriptableObject
         return m_currentSeason;
     }
 
-    public  void RegisterShadow(ShadowInstance shadow)
+
+    public void RegisterShadow(ShadowInstance shadow)
     {
         m_shadows.Add(shadow);
     }
@@ -177,6 +219,8 @@ public class ClimateDataSO : ScriptableObject
     {
         m_lightBlender.Remove(interpolator);
     }
+
+   
 }
 
 public enum Season { Spring, Summer, Autumn, Winter }

@@ -11,18 +11,20 @@ public class TimeAndDayManager
     private int m_currentYear;
     private int m_currentDayOfWeek; //0 to 1 (Sun to Sat)
     private int m_lastDay = -1;
-
+    private ClimateData m_climateData;
 
     public TimeAndDayManager(float minutesToLastADay)
     {
 
-        DateTime currentDateTime = ClimateDataSO.Instance.GetDateTimeYearData();
+        DateTime currentDateTime = ClimateData.Instance.GetDateTimeYearData();
 
         m_minutesToLastADay = minutesToLastADay;
         m_currentDateTime = currentDateTime;
         m_currentMonth = (Month)currentDateTime.Month;
         m_currentYear = currentDateTime.Year;
         m_currentDayOfWeek = (int)currentDateTime.DayOfWeek;
+
+        m_climateData = ClimateData.Instance;
     }
 
 
@@ -41,14 +43,14 @@ public class TimeAndDayManager
             if (m_currentDateTime.Year != m_currentYear)
             {
                 m_currentYear = m_currentDateTime.Year;
-                ClimateDataSO.Instance.SetYear(m_currentYear);
+                m_climateData.SetYear(m_currentYear);
             }
 
             UpdateMonth();
         }
 
-        ClimateDataSO.Instance.SetHourOfDay(m_currentDateTime.Hour);
-        ClimateDataSO.Instance.SetMinuteOfHour(m_currentDateTime.Minute);
+        m_climateData.SetHourOfDay(m_currentDateTime.Hour);
+        m_climateData.SetMinuteOfHour(m_currentDateTime.Minute);
     }
 
 
@@ -56,27 +58,29 @@ public class TimeAndDayManager
     {
         // Update month from DateTime
         m_currentMonth = (Month)m_currentDateTime.Month;
-        ClimateDataSO.Instance.SetMonth(m_currentMonth);
+        m_climateData.SetMonth(m_currentMonth);
 
         // Update day of month
-        ClimateDataSO.Instance.SetMonthDay(m_currentDateTime.Day);
+        m_climateData.SetMonthDay(m_currentDateTime.Day);
 
         //Set Seasons
-        if(m_currentDateTime.Month >= 3 && m_currentDateTime.Month < 6)
+        int currentMonth = m_currentDateTime.Month;
+
+        if (currentMonth >= 3 && currentMonth < 6)
         {
-            ClimateDataSO.Instance.SetCurrentSeason(Season.Spring);
+            m_climateData.SetCurrentSeason(Season.Spring);
         }
-        else if(m_currentDateTime.Month >=6 && m_currentDateTime.Month<9)
+        else if(currentMonth >= 6 && currentMonth < 9)
         {
-            ClimateDataSO.Instance.SetCurrentSeason(Season.Summer);
+            m_climateData.SetCurrentSeason(Season.Summer);
         }
-        else if(m_currentDateTime.Month >= 9 && m_currentDateTime.Month <12)
+        else if(currentMonth >= 9 && currentMonth < 12)
         {
-            ClimateDataSO.Instance.SetCurrentSeason(Season.Autumn);
+            m_climateData.SetCurrentSeason(Season.Autumn);
         }
         else
         {
-            ClimateDataSO.Instance.SetCurrentSeason(Season.Winter);
+            m_climateData.SetCurrentSeason(Season.Winter);
         }
     }
 

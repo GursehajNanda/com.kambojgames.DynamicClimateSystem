@@ -13,12 +13,12 @@ public class ShadowInstance : MonoBehaviour
 
     private void OnEnable()
     {
-        ClimateDataSO.Instance.RegisterShadow(this);
+        ClimateData.Instance.RegisterShadow(this);
     }
 
     private void OnDisable()
     {
-        ClimateDataSO.Instance.UnregisterShadow(this);
+        ClimateData.Instance.UnregisterShadow(this);
     }
 
    

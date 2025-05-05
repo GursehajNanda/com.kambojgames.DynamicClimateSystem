@@ -61,7 +61,7 @@ public class DayNightCycleController
 
 
 
-
+    private ClimateData m_climateData;
     private Light2D m_sun;
     private Light2D m_moon;
     private Light2D m_globalLight;
@@ -87,9 +87,11 @@ public class DayNightCycleController
             }
         }
 
-        m_shadows = ClimateDataSO.Instance.Shadows;
-        m_lightBlenders = ClimateDataSO.Instance.LightBlender;
+        m_climateData = ClimateData.Instance;
+        m_shadows = m_climateData.Shadows;
+        m_lightBlenders = m_climateData.LightBlender;
         m_isInitialzied = true;
+
     }
 
 
@@ -97,7 +99,7 @@ public class DayNightCycleController
     {
         if (!m_isInitialzied) { Debug.LogError("DayNightCycleController is not Initialzed, Please Initialize it correctly"); }
 
-        DateTime currentTime = ClimateDataSO.Instance.GetDateTimeYearData();
+        DateTime currentTime = m_climateData.GetDateTimeYearData();
 
         // Convert hour + minute into float (e.g., 14.5f for 2:30 PM)
         m_inGameTime = currentTime.Hour + (currentTime.Minute / 60f);
@@ -130,7 +132,7 @@ public class DayNightCycleController
 
     void UpdateNightLights(float ratio)
     {
-        float cloudStrength = ClimateDataSO.Instance.CloudsStrength;
+        float cloudStrength = m_climateData.CloudsStrength;
         float fadeFactor = Mathf.Clamp01(m_nightLightFadeCurve.Evaluate(ratio));
 
         foreach (var light in m_nightLights)
@@ -176,9 +178,9 @@ public class DayNightCycleController
             m_currentPeriod = DayPeriod.Evening;
         }
 
-       
 
-        ClimateDataSO.Instance.SetDayPeriod(m_currentPeriod);
+
+        m_climateData.SetDayPeriod(m_currentPeriod);
 
     }
 

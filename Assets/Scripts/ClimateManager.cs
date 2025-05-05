@@ -8,7 +8,6 @@ public class ClimateManager : MonoBehaviour
     [SerializeField] private Light2D m_globalLight;
     [SerializeField] private Light2D m_sun;
     [SerializeField] private Light2D m_moon;
-    [SerializeField] private ClimateDataSO m_climateDataSO;
     [SerializeField] DayNightCycleController m_dayAndNightController = new();
     [SerializeField] SeasonCycleController m_seasonCycleController = new();
     [SerializeField] CloudController m_cloudController = new();

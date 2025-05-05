@@ -18,6 +18,7 @@ public class SeasonCycleController
     private Season m_nextSeason;
     private float m_seasonBlendFactor = 0.5f;
     private int m_currentDay;
+    private ClimateData m_climateData;
     private bool m_isInitialzied = false;
 
     private AnimationCurve m_summerSunCurve = new AnimationCurve(
@@ -141,13 +142,13 @@ public class SeasonCycleController
 
 
         m_seasonGradients = new KeyValuePairList<Season, Gradient>();
-        m_seasonGradients.Add(Season.Spring, ClimateDataSO.Instance.SpringColorGradient);
-        m_seasonGradients.Add(Season.Summer, ClimateDataSO.Instance.SummerColorGradient);
-        m_seasonGradients.Add(Season.Autumn, ClimateDataSO.Instance.AutumnColorGradient);
-        m_seasonGradients.Add(Season.Winter, ClimateDataSO.Instance.WinterColorGradient);
+        m_seasonGradients.Add(Season.Spring, ClimateData.Instance.SpringColorGradient);
+        m_seasonGradients.Add(Season.Summer, ClimateData.Instance.SummerColorGradient);
+        m_seasonGradients.Add(Season.Autumn, ClimateData.Instance.AutumnColorGradient);
+        m_seasonGradients.Add(Season.Winter, ClimateData.Instance.WinterColorGradient);
 
-
-        m_currentDay = ClimateDataSO.Instance.GetDateTimeYearData().Day;
+        m_climateData = ClimateData.Instance;
+        m_currentDay = m_climateData.GetDateTimeYearData().Day;
         UpdateSeasonalCurves();
 
         m_isInitialzied = true;
@@ -158,13 +159,13 @@ public class SeasonCycleController
     {
         if (!m_isInitialzied) { Debug.LogError("SeasonCycleController is not Initialzed, Please Initialize it correctly"); }
 
-        DateTime currentTime = ClimateDataSO.Instance.GetDateTimeYearData();
+        DateTime currentTime = m_climateData.GetDateTimeYearData();
 
         // Convert hour + minute into float (e.g., 14.5f for 2:30 PM)
         m_inGameTime = currentTime.Hour + (currentTime.Minute / 60f);
         float t = m_inGameTime / 24f;
 
-        float cloudStrength = ClimateDataSO.Instance.CloudsStrength;
+        float cloudStrength = m_climateData.CloudsStrength;
         float cloudStrengthFactor =  1.0f - cloudStrength;
 
         UpdateSeasonalCurves();
@@ -229,7 +230,7 @@ public class SeasonCycleController
 
     void UpdateSeasonalCurves()
     {
-        Season currentSeasonFromData = ClimateDataSO.Instance.GetCurrentSeason();
+        Season currentSeasonFromData = m_climateData.GetCurrentSeason();
         if (m_currentSeason == currentSeasonFromData) return;
 
         m_currentSeason = currentSeasonFromData;
@@ -241,11 +242,11 @@ public class SeasonCycleController
     void UpdateSeasonalBlend()
     {
        
-        int newcurrentDay = ClimateDataSO.Instance.GetDateTimeYearData().DayOfYear;
+        int newcurrentDay = m_climateData.GetDateTimeYearData().DayOfYear;
         if (m_currentDay == newcurrentDay) return;
         m_currentDay = newcurrentDay;
 
-        int year = ClimateDataSO.Instance.GetDateTimeYearData().Year;
+        int year = m_climateData.GetDateTimeYearData().Year;
         int daysInYear = DateTime.IsLeapYear(year) ? 366 : 365;
 
         int currentSeasonStart = m_seasonStartDayOfYear[m_currentSeason];
@@ -317,7 +318,7 @@ public class SeasonCycleController
 
         float blendValue = Mathf.Lerp(startBlend, endBlend, t) % 1.0f;
 
-        ClimateDataSO.Instance.SetMaterialSesaonalBlend(blendValue);
+        m_climateData.SetMaterialSesaonalBlend(blendValue);
 
     }
 
