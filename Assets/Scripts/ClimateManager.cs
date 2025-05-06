@@ -3,8 +3,6 @@ using UnityEngine.Rendering.Universal;
 
 public class ClimateManager : MonoBehaviour
 {
-    [Min(1.0f)]
-    [SerializeField] private float m_minutesToLastADay;
     [SerializeField] private Light2D m_globalLight;
     [SerializeField] private Light2D m_sun;
     [SerializeField] private Light2D m_moon;
@@ -18,7 +16,7 @@ public class ClimateManager : MonoBehaviour
 
     private void Start()
     {
-        m_timeAndDayManager = new TimeAndDayManager(m_minutesToLastADay);
+        m_timeAndDayManager = new TimeAndDayManager();
         m_dayAndNightController.Initialize(m_sun, m_moon,m_globalLight);
         m_seasonCycleController.Initialize(m_sun, m_moon);
         m_cloudController.Initialize();

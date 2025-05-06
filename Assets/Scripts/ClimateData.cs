@@ -16,6 +16,7 @@ public class ClimateData : ScriptableObject
     [SerializeField] private int m_hour;
     [Range(0, 59)]
     [SerializeField] private int m_minute;
+    [SerializeField] [Min(1.0f)] private float m_minutesToLastADay;
 
 
     [Header("Seasonal Day Light")]
@@ -39,8 +40,9 @@ public class ClimateData : ScriptableObject
     private Material m_seasonVegetationMaterial;
     private List<ShadowInstance> m_shadows = new();
     private List<LightInterpolator> m_lightBlender = new();
-    private Weather m_currentWeather;
+    private List<Weather> m_currentRunningWeather;
 
+    public float MinutesToLastADay => m_minutesToLastADay;
     public Gradient SummerColorGradient => m_summerColorGradient;
     public Gradient WinterColorGradient => m_winterColorGradient;
     public Gradient SpringColorGradient => m_springColorGradient;
@@ -51,10 +53,7 @@ public class ClimateData : ScriptableObject
 
     public float CloudsStrength => m_cloudsStrength;
 
-    public Weather CurrentWeather => m_currentWeather;
-
-    private Timer m_weatherCooldownTimer;
-
+   
     private void OnValidate()
     {
         // Clamp the year
@@ -92,36 +91,37 @@ public class ClimateData : ScriptableObject
     private void Initialize()
     {
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
-        m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");
-
-        SelectWeather();
-        
+        m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");     
     }
 
-    private void StartNextWeatherEvent()
+   
+
+    public List<Weather> GetCureentRunningWeather()
     {
-        float MinTime = CurrentWeather.WeatherTimeRange.x;
-        float MaxTime = CurrentWeather.WeatherTimeRange.y;
+        return m_currentRunningWeather;
+    }
 
-        float nextWeatherSelectionTime = UnityEngine.Random.Range(MinTime, MaxTime);
+    public void AddNewWeather(Weather weather)
+    {
+        m_currentRunningWeather.Add(weather);
+    }
 
-        m_weatherCooldownTimer = new Timer(0f, nextWeatherSelectionTime, null, SelectWeather);
-        m_weatherCooldownTimer.Start();
+    public void RemoveWeather(Weather weather)
+    {
+        m_currentRunningWeather.Remove(weather);
     }
 
     public void UpdateWeather()
     {
-        m_weatherCooldownTimer.Update(Time.deltaTime);
+        StartWeather();
     }
 
-    private void SelectWeather()
+    private void StartWeather()
     {
         foreach (Weather weather in m_weatherObjects)
         {
-            weather.SelectWeather();
+            weather.StartWeather();
         }
-
-        StartNextWeatherEvent();
     }
 
 

@@ -13,18 +13,19 @@ public class TimeAndDayManager
     private int m_lastDay = -1;
     private ClimateData m_climateData;
 
-    public TimeAndDayManager(float minutesToLastADay)
+    public TimeAndDayManager()
     {
+        m_climateData = ClimateData.Instance;
 
-        DateTime currentDateTime = ClimateData.Instance.GetDateTimeYearData();
+        DateTime currentDateTime = m_climateData.GetDateTimeYearData();
 
-        m_minutesToLastADay = minutesToLastADay;
+        m_minutesToLastADay = m_climateData.MinutesToLastADay;
         m_currentDateTime = currentDateTime;
         m_currentMonth = (Month)currentDateTime.Month;
         m_currentYear = currentDateTime.Year;
         m_currentDayOfWeek = (int)currentDateTime.DayOfWeek;
 
-        m_climateData = ClimateData.Instance;
+        
     }
 
 
