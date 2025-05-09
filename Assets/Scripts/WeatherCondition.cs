@@ -1,27 +1,41 @@
 using System.Collections.Generic;
 using UnityEngine.VFX;
 using UnityEngine;
-using KambojGames.Utilities2D.Attributes;
+
 
 //How to use weather behaviour in calculating probability??
 public abstract class WeatherCondition : MonoBehaviour
 {
+  
     [Tooltip("Weather type condition to run this weather")]
     [SerializeField] private WeatherType m_weatherTypeCondition;
+    [Tooltip("Months to hit this Weather Behaviour")]
+    [SerializeField] private WeatherMonths m_weatherMonths;
     [Tooltip("Please ensure total sum of probabilities for effects should be 1")]
     [SerializeField]private List<WeatherEffects> m_weatherEffects;
-    [Tooltip("Range should be in hours and 24 hour format,this will not be real time but game time")]
-    [SerializeField]private MinMaxFloat m_timeRangeToClearWeatherEffect;
+    [Tooltip("Effects that can be summoned during Weather Behaviour")]
+    [SerializeField] protected List<KeyValuePair<string,ParticleSystem>> m_particlefx;
+    [SerializeField] protected List<KeyValuePair<string, VisualEffect>> m_vfx;
 
-    private bool m_isWeatherCleared;
-    private bool m_isRunningWeather;
+
+    WeatherInterpolator m_weatherInterpolator = new();
+
 
     protected WeatherEffects CurrentWeatherEffect;
-    protected Timer ClearWeatherTimer;
+    protected ClimateData ClimateData;
+
+  
+
+    protected virtual void Start()
+    {
+        ClimateData = ClimateData.Instance;
+
+        m_weatherInterpolator.OnWeatherSelected += OnWeatherSelected;
+        m_weatherInterpolator.OnWeatherEnd += OnWeatherEnd;
+    }
 
 
-
-    private void OnValidate()
+    protected virtual void OnValidate()
     {
         float totalProbability = 0;
 
@@ -38,14 +52,14 @@ public abstract class WeatherCondition : MonoBehaviour
             Debug.LogError("Please ensure total sum of probabilities for effects should be 1");
         }
 
-        if(m_timeRangeToClearWeatherEffect.min < 0)
-        {
-            Debug.LogError("Minimum value of clearing weather effect cannot be 0");
-        }
     }
 
-    protected bool IsConditionMet()
+    private bool IsConditionMet()
     {
+        Month CurrentMonth = (Month)ClimateData.Instance.GetDateTimeYearData().Month;
+
+        if (!IsMonthInWeather(CurrentMonth)) return false;
+
         List<Weather> RunningWeather = ClimateData.Instance.GetCureentRunningWeather();
 
         if (RunningWeather.Count == 0) return false;
@@ -58,24 +72,18 @@ public abstract class WeatherCondition : MonoBehaviour
             }
         }
 
-        ClearWeatherEffect();
-
         return false;
     }
 
-    private  bool SelectWeatherEffect()
+    public void SelectWeatherEffect(float weatherStartTime, float weatherEndTime)
     {
-        if (!IsConditionMet()) return false;
+      
+        if (!IsConditionMet()) return;
 
-
-        float randomProbability = Random.Range(0f, 1f);
-        float currentProbability = 0f;
-
-        foreach (var weathereffect in m_weatherEffects)
+   
+        foreach (var weatherEffect in m_weatherEffects)
         {
-            currentProbability += weathereffect.Probability;
-
-            if (randomProbability < currentProbability)
+            if (IsWithinProbabaility(weatherEffect))
             {
                 List<Weather> RunningWeather = ClimateData.Instance.GetCureentRunningWeather();
 
@@ -83,89 +91,60 @@ public abstract class WeatherCondition : MonoBehaviour
                 {
                     if (m_weatherTypeCondition == weather.WeatherType)
                     {
-                        
-                        if (weathereffect.WeatherBehaviorCondition != WeatherBehaviour.None)
+
+                        if (weatherEffect.WeatherBehaviorCondition != WeatherBehaviour.None)
                         {
-                            if(weathereffect.WeatherBehaviorCondition != weather.GetCurrentWeatherBehaviour())
+                            if (weatherEffect.WeatherBehaviorCondition != weather.GetCurrentWeatherBehaviour())
                             {
-                                return false;
+                                return;
                             }
                         }
 
-                        CurrentWeatherEffect = weathereffect;
+                        CurrentWeatherEffect = weatherEffect;
                         CurrentWeatherEffect.OnWeatherEvent.Raise();
-                        return true;
+
+                        m_weatherInterpolator.StartWeather(weatherStartTime, weatherEndTime);
+                        return;
                     }
                 }
-
-               
             }
 
         }
 
-        return false;
     }
 
 
-    public bool IsRunningWeatherEffect()
+    private bool IsWithinProbabaility(WeatherEffects weathereffect)
     {
-        return m_isRunningWeather;
-    }
+        float randomProbability = Random.Range(0f, 1f);
+        float currentProbability = 0f;
 
-    protected void ClearWeatherEffect()
-    {
-        if (!IsRunningWeatherEffect()) return;
-        foreach (WeatherEffects effects in m_weatherEffects)
+        currentProbability += weathereffect.Probability;
+        if (randomProbability < currentProbability)
         {
-            if (effects.VFX != null)
-            {
-                effects.VFX.Stop();
-            }
-
-            if (effects.Paricles != null)
-            {
-                effects.Paricles.Stop();
-            }
-
-        }
-
-        m_isWeatherCleared = true;
-        m_isRunningWeather = false;
-        ClearWeatherTimer.Stop();
-    }
-
-    //Do not call StartWeatherEffect directly make another function may be Update Weather Effect, then do all the things you want to do?
-    //May be do things in update?
-    //Do need to call start weather effect, call it in the update
-
-    public bool StartWeatherEffect()
-    {
-        //what if there is no weather effect?
-
-        if (IsRunningWeatherEffect()) return false;
-
-        if (SelectWeatherEffect())
-        {
-            CurrentWeatherEffect.VFX.Play();
-            CurrentWeatherEffect.Paricles.Play();
-
-            m_isRunningWeather = true;
-            m_isWeatherCleared = false;
             return true;
         }
+
         return false;
     }
 
-
-
-    public bool GetIsWeatherCleared()
+    private bool IsMonthInWeather(Month month)
     {
-        return m_isWeatherCleared;
+        // Convert Month to WeatherMonths using bit shift
+        WeatherMonths monthAsFlag = (WeatherMonths)(1 << ((int)month - 1));
+        return (m_weatherMonths & monthAsFlag) != 0;
     }
+
+
+    public bool IsWeatherActive()
+    {
+        return m_weatherInterpolator.IsWeatherActive() && CurrentWeatherEffect != null;
+    }
+
 
     public WeatherBehaviour GetCurrentWeatherBehaviour()
     {
-        if(IsRunningWeatherEffect())
+        if(IsWeatherActive())
         {
             return CurrentWeatherEffect.WeatherBehavior;
         }
@@ -173,25 +152,26 @@ public abstract class WeatherCondition : MonoBehaviour
         return WeatherBehaviour.None;
     }
 
-    public abstract void StartClearingWeather();
+    protected abstract void OnWeatherSelected();
+
+    protected abstract void OnWeatherEnd();
+   
+
+   
 }
 
 [System.Serializable]
-public struct WeatherEffects
+public class WeatherEffects
 {
-    [SerializeField] private  string EffectTitle;
-    [SerializeField] private ParticleSystem m_particles;
-    [SerializeField] private VisualEffect m_vFX;
+    [SerializeField] private string m_weatherKey;
     [SerializeField] private WeatherBehaviour m_weatherBehavior;
     [Tooltip("Weather behaviour condition to run the weather Effect ")]
     [SerializeField] private WeatherBehaviour m_weatherBehaviorCondition;
     [Range(0.0f, 1.0f)]
     [SerializeField] private float m_probability;
     [SerializeField] private GameEvent m_onWeatherEvent;
-    //Months to run this weather??
 
-    public ParticleSystem Paricles => m_particles;
-    public VisualEffect VFX=> m_vFX;
+    public string WeatherKey => m_weatherKey;
     public WeatherBehaviour WeatherBehavior => m_weatherBehavior;
     public WeatherBehaviour WeatherBehaviorCondition => m_weatherBehaviorCondition;
     public float Probability =>m_probability;
@@ -218,4 +198,21 @@ public enum WeatherType
     Thunder,
 }
 
+[System.Flags]
+public enum WeatherMonths
+{
+    None = 0,
+    January = 1 << 0,  
+    February = 1 << 1,  
+    March = 1 << 2,  
+    April = 1 << 3,  
+    May = 1 << 4,  
+    June = 1 << 5,  
+    July = 1 << 6,  
+    August = 1 << 7,  
+    September = 1 << 8,  
+    October = 1 << 9,  
+    November = 1 << 10, 
+    December = 1 << 11  
+}
 

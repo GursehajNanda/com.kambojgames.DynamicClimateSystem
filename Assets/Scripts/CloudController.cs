@@ -26,8 +26,17 @@ public class CloudController
             m_cloudsKeys.Add(cloud.PoolKey);
         }
 
-        m_spawnTimer = new Timer(1.0f, m_spawnRate, null, SpawnCloud);
+        m_spawnTimer = new Timer(1.0f, m_spawnRate, null, SpawnCloud);  
+    }
+
+    public void StartSpawn()
+    {
         m_spawnTimer.Start();
+    }
+
+    public void StopSpawn()
+    {
+        m_spawnTimer.Stop();
     }
 
     public void UpdateClouds()

@@ -45,28 +45,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_weatherTypeCondition: 1
+  m_weatherMonths: 0
   m_weatherEffects:
-  - EffectTitle: PartiallyCloudy
+  - m_effectTitle: Clear
     m_particles: {fileID: 0}
     m_vFX: {fileID: 0}
     m_weatherBehavior: 1
     m_weatherBehaviorCondition: 0
-    m_probability: 0.4
+    m_probability: 0.5
     m_onWeatherEvent: {fileID: 0}
-  - EffectTitle: Cloudy
+  - m_effectTitle: PartiallyCloudy
     m_particles: {fileID: 0}
     m_vFX: {fileID: 0}
     m_weatherBehavior: 2
     m_weatherBehaviorCondition: 0
-    m_probability: 0.35
+    m_probability: 0.25
     m_onWeatherEvent: {fileID: 0}
-  - EffectTitle: HeavyCloudy
+  - m_effectTitle: ModerateCloudy
     m_particles: {fileID: 0}
     m_vFX: {fileID: 0}
     m_weatherBehavior: 3
     m_weatherBehaviorCondition: 0
-    m_probability: 0.25
+    m_probability: 0.125
     m_onWeatherEvent: {fileID: 0}
-  m_timeRangeToClearWeatherEffect:
+  - m_effectTitle: HeavyCloudy
+    m_particles: {fileID: 0}
+    m_vFX: {fileID: 0}
+    m_weatherBehavior: 0
+    m_weatherBehaviorCondition: 0
+    m_probability: 0.125
+    m_onWeatherEvent: {fileID: 0}
+  m_weatherClearTimeRange:
     min: 0
     max: 0
+  m_probabiltyCheckPeriod: 0

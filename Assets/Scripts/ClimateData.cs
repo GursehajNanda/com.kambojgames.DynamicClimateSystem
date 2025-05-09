@@ -28,11 +28,7 @@ public class ClimateData : ScriptableObject
     [Header("Weather")]
     [SerializeField] List<Weather> m_weatherObjects;
 
-    [Range(0, 1)]
-    [SerializeField] private float m_cloudsStrength; //Remove Serialized later
-
-
-
+    private float m_cloudsStrength;
     private DayPeriod m_dayPeriod;
     private Season m_currentSeason;
     private static ClimateData m_instance;
@@ -41,6 +37,7 @@ public class ClimateData : ScriptableObject
     private List<ShadowInstance> m_shadows = new();
     private List<LightInterpolator> m_lightBlender = new();
     private List<Weather> m_currentRunningWeather;
+    WeatherTypeFlags m_currentWeatherType;
 
     public float MinutesToLastADay => m_minutesToLastADay;
     public Gradient SummerColorGradient => m_summerColorGradient;
@@ -91,7 +88,9 @@ public class ClimateData : ScriptableObject
     private void Initialize()
     {
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
-        m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");     
+        m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");
+        m_cloudsStrength = 0;
+        m_currentWeatherType = WeatherTypeFlags.Clear;
     }
 
    
@@ -113,18 +112,36 @@ public class ClimateData : ScriptableObject
 
     public void UpdateWeather()
     {
-        StartWeather();
-    }
-
-    private void StartWeather()
-    {
         foreach (Weather weather in m_weatherObjects)
         {
-            weather.StartWeather();
+            weather.UpdateWeather();
         }
     }
 
+    public void AddWeather(WeatherType weather)
+    {
+        if (weather == WeatherType.None)
+            return;
 
+           m_currentWeatherType |= (WeatherTypeFlags)(1 << (int)weather);
+    }
+
+    public void RemoveWeather(WeatherType weather)
+    {
+        if (weather == WeatherType.None)
+            return;
+
+        m_currentWeatherType &= ~(WeatherTypeFlags)(1 << (int)weather);
+    }
+
+    public void SetCloudStrength(float value)
+    {
+        if(value <0 || value >1)
+        {
+            Debug.Log("Cloud strength value must be between 0 and 1");
+        }
+        m_cloudsStrength = value;
+    }
 
     public void SetYear(int Year)
     {
@@ -220,6 +237,8 @@ public class ClimateData : ScriptableObject
         m_lightBlender.Remove(interpolator);
     }
 
+
+
    
 }
 
@@ -234,4 +253,16 @@ public enum Month
 public enum WeekDay
 {
     Sunday = 0, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+}
+
+[System.Flags]
+public enum WeatherTypeFlags
+{
+    None = 0,
+    Clear = 1 << 0,
+    Cloudy = 1 << 1,
+    Rainy = 1 << 2,
+    Windy = 1 << 3,
+    Foggy = 1 << 4,
+    Thunder = 1 << 5,
 }
