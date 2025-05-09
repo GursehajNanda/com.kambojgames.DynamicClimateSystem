@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
 [CreateAssetMenu(fileName = "ClimateData", menuName = "ScriptableObject/ClimateData")]
 public class ClimateData : ScriptableObject
 {
@@ -36,8 +37,7 @@ public class ClimateData : ScriptableObject
     private Material m_seasonVegetationMaterial;
     private List<ShadowInstance> m_shadows = new();
     private List<LightInterpolator> m_lightBlender = new();
-    private List<Weather> m_currentRunningWeather;
-    WeatherTypeFlags m_currentWeatherType;
+    
 
     public float MinutesToLastADay => m_minutesToLastADay;
     public Gradient SummerColorGradient => m_summerColorGradient;
@@ -49,8 +49,8 @@ public class ClimateData : ScriptableObject
     public List<LightInterpolator> LightBlender => m_lightBlender;
 
     public float CloudsStrength => m_cloudsStrength;
+    public RunningWeather RunningWeather = new();
 
-   
     private void OnValidate()
     {
         // Clamp the year
@@ -90,25 +90,10 @@ public class ClimateData : ScriptableObject
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
         m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");
         m_cloudsStrength = 0;
-        m_currentWeatherType = WeatherTypeFlags.Clear;
+
+        RunningWeather.AddWeather(WeatherType.Clear, WeatherBehaviour.None);
     }
 
-   
-
-    public List<Weather> GetCureentRunningWeather()
-    {
-        return m_currentRunningWeather;
-    }
-
-    public void AddNewWeather(Weather weather)
-    {
-        m_currentRunningWeather.Add(weather);
-    }
-
-    public void RemoveWeather(Weather weather)
-    {
-        m_currentRunningWeather.Remove(weather);
-    }
 
     public void UpdateWeather()
     {
@@ -118,21 +103,6 @@ public class ClimateData : ScriptableObject
         }
     }
 
-    public void AddWeather(WeatherType weather)
-    {
-        if (weather == WeatherType.None)
-            return;
-
-           m_currentWeatherType |= (WeatherTypeFlags)(1 << (int)weather);
-    }
-
-    public void RemoveWeather(WeatherType weather)
-    {
-        if (weather == WeatherType.None)
-            return;
-
-        m_currentWeatherType &= ~(WeatherTypeFlags)(1 << (int)weather);
-    }
 
     public void SetCloudStrength(float value)
     {
@@ -255,14 +225,44 @@ public enum WeekDay
     Sunday = 0, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
 }
 
-[System.Flags]
-public enum WeatherTypeFlags
+public enum WeatherBehaviour
 {
-    None = 0,
-    Clear = 1 << 0,
-    Cloudy = 1 << 1,
-    Rainy = 1 << 2,
-    Windy = 1 << 3,
-    Foggy = 1 << 4,
-    Thunder = 1 << 5,
+    None,
+    Normal,
+    Moderate,
+    Heavy
+}
+
+public class RunningWeather
+{
+    Dictionary<WeatherType, WeatherBehaviour> m_runningWeather;
+
+    public void AddWeather(WeatherType type, WeatherBehaviour behaviour)
+    {
+        if (type == WeatherType.None || behaviour == WeatherBehaviour.None)
+            return;
+
+        m_runningWeather[type] = behaviour; // Adds or updates
+    }
+
+    public void RemoveWeather(WeatherType type, WeatherBehaviour behaviour)
+    {
+        if (type == WeatherType.None)
+            return;
+
+        m_runningWeather.Remove(type);
+    }
+
+
+    public bool IsRunningWeatherTypeWithBehaviour(WeatherType type ,WeatherBehaviour behaviour)
+    {
+        if (m_runningWeather.TryGetValue(type, out WeatherBehaviour value))
+        {
+            if (value == behaviour)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

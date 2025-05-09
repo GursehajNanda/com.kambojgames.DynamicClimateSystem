@@ -31,33 +31,35 @@ public class CloudWeatherCondition : WeatherCondition
     {
         if (!IsWeatherActive()) return;
 
-        if (CurrentWeatherEffect.WeatherKey == "PartiallyCloudy")
-        {
-            m_cloudController.StartSpawn();
-        }
-        else if (CurrentWeatherEffect.WeatherKey == "ModerateCloudy")
-        {
-            m_cloudStrength = m_moderateCloudStrength;
-            ClimateData.SetCloudStrength(m_moderateCloudStrength);
-        }
-        else if (CurrentWeatherEffect.WeatherKey == "HeavyCloudy")
-        {
-            m_cloudStrength = m_heavyCloudStrength;
-            ClimateData.SetCloudStrength(m_heavyCloudStrength);
-        }
+        //if (CurrentWeatherEffect.WeatherKey == "PartiallyCloudy")
+        //{
+        //    m_cloudController.StartSpawn();
+        //}
+        //else if (CurrentWeatherEffect.WeatherKey == "ModerateCloudy")
+        //{
+        //    m_cloudStrength = m_moderateCloudStrength;
+        //    ClimateData.SetCloudStrength(m_moderateCloudStrength);
+        //}
+        //else if (CurrentWeatherEffect.WeatherKey == "HeavyCloudy")
+        //{
+        //    m_cloudStrength = m_heavyCloudStrength;
+        //    ClimateData.SetCloudStrength(m_heavyCloudStrength);
+        //}
     }
 
     protected override void OnWeatherEnd()
     {
-        if (CurrentWeatherEffect != null)
-        {
-            if (CurrentWeatherEffect.WeatherKey == "PartiallyCloudy")
-            {
-                m_cloudController.StopSpawn();
-            }
+        //if (CurrentWeatherEffect != null)
+        //{
+        //    if (CurrentWeatherEffect.WeatherKey == "PartiallyCloudy")
+        //    {
+        //        m_cloudController.StopSpawn();
+        //    }
 
-            CurrentWeatherEffect = null;
-        }
+        //    CurrentWeatherEffect = null;
+        //}
+
+        RemoveWeather();
     }
 
 
