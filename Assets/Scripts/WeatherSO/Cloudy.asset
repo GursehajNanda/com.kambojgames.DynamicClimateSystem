@@ -10,10 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba381bf7e2b576c439a0cb6885102a3f, type: 3}
-  m_Name: ClearSky
+  m_Name: Cloudy
   m_EditorClassIdentifier: 
-  m_weatherType: 1
-  m_weatherConditions: {fileID: 0}
+  m_weatherType: 2
+  m_weatherConditions:
+  - {fileID: -2025253301116235762, guid: 000cb22d35cc2e342bd3ada4dddc0b22, type: 3}
+  - {fileID: -4061603835786812664, guid: e44503147ef621941918fbffe3bda5cf, type: 3}
+  - {fileID: 898025085311681266, guid: 66d6644244c28df4cb71382e979faeb9, type: 3}
   m_weatherTimeRange:
-    min: 24
-    max: 48
+    min: 4
+    max: 8
+  m_coolDownTime: 24

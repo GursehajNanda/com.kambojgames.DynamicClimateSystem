@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_year: 1
   m_month: 10
-  m_monthDay: 17
-  m_hour: 9
-  m_minute: 19
+  m_monthDay: 23
+  m_hour: 21
+  m_minute: 30
+  m_minutesToLastADay: 1
   m_summerColorGradient:
     serializedVersion: 2
     key0: {r: 0.031309698, g: 0.051121764, b: 0.59568727, a: 1}
@@ -137,4 +138,10 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
-  m_cloudsStrength: 0
+  m_weatherObjects:
+  - {fileID: 11400000, guid: 415627fdb0958904e8beba389ae2540b, type: 2}
+  - {fileID: 11400000, guid: c7196a346e7fbcd439f2125b499a22b5, type: 2}
+  - {fileID: 11400000, guid: ce7bf6c212039c8409e6dbfba8ed2242, type: 2}
+  - {fileID: 11400000, guid: 90328d6cf45def646be9ba24ce7417a9, type: 2}
+  - {fileID: 11400000, guid: a086cc82dfd5c28429558513c72202e6, type: 2}
+  - {fileID: 11400000, guid: 752b7dbcda008874baa8ae1ffd81aadb, type: 2}

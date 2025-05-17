@@ -24,5 +24,6 @@ public class ClimateManager : MonoBehaviour
         m_timeAndDayManager.UpdateDateAndTime();
         m_dayAndNightController.UpdateNightDayCycle();
         m_seasonCycleController.UpdateSeasons();
+        ClimateData.Instance.UpdateWeather();
     }
 }

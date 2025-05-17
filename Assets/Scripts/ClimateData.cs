@@ -15,7 +15,7 @@ public class ClimateData : ScriptableObject
     [SerializeField] private int m_monthDay;
     [Range(0, 23)]
     [SerializeField] private int m_hour;
-    [Range(0, 59)]
+    [Range(1, 59)]
     [SerializeField] private int m_minute;
     [SerializeField] [Min(1.0f)] private float m_minutesToLastADay;
 
@@ -92,6 +92,11 @@ public class ClimateData : ScriptableObject
         m_cloudsStrength = 0;
 
         RunningWeather.AddWeather(WeatherType.Clear, WeatherBehaviour.None);
+
+        foreach(Weather weather in m_weatherObjects)
+        {
+            weather.Initialize();
+        }
     }
 
 
@@ -111,6 +116,8 @@ public class ClimateData : ScriptableObject
             Debug.Log("Cloud strength value must be between 0 and 1");
         }
         m_cloudsStrength = value;
+
+        Debug.Log("Updated Cloud Strength: " + m_cloudsStrength);
     }
 
     public void SetYear(int Year)
@@ -169,6 +176,12 @@ public class ClimateData : ScriptableObject
     {
        m_seasonMaterial.SetFloat("_BlendFactor", blendFactor);
        m_seasonVegetationMaterial.SetFloat("_BlendFactor", blendFactor);
+       
+    }
+
+    public Color GetVegetationColor()
+    {
+        return m_seasonVegetationMaterial.GetColor("_MainColor");
     }
 
     public DateTime GetDateTimeYearData()
@@ -235,14 +248,16 @@ public enum WeatherBehaviour
 
 public class RunningWeather
 {
-    Dictionary<WeatherType, WeatherBehaviour> m_runningWeather;
+    readonly Dictionary<WeatherType, WeatherBehaviour> m_runningWeather = new();
 
     public void AddWeather(WeatherType type, WeatherBehaviour behaviour)
     {
-        if (type == WeatherType.None || behaviour == WeatherBehaviour.None)
+   
+        if (type == WeatherType.None )
             return;
 
         m_runningWeather[type] = behaviour; // Adds or updates
+
     }
 
     public void RemoveWeather(WeatherType type, WeatherBehaviour behaviour)
@@ -256,12 +271,15 @@ public class RunningWeather
 
     public bool IsRunningWeatherTypeWithBehaviour(WeatherType type ,WeatherBehaviour behaviour)
     {
+
         if (m_runningWeather.TryGetValue(type, out WeatherBehaviour value))
         {
-            if (value == behaviour)
-            {
+            // If no specific behaviour is required, just check if the type is running
+            if (behaviour == WeatherBehaviour.None)
                 return true;
-            }
+
+            // Otherwise, compare behaviours
+            return value == behaviour;
         }
         return false;
     }

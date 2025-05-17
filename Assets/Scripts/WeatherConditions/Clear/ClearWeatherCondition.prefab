@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 792541325819792892}
-  - component: {fileID: 7690066130890635027}
+  - component: {fileID: -4593074377898193324}
   m_Layer: 0
-  m_Name: CloudWeatherPrefab
+  m_Name: ClearWeatherCondition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7690066130890635027
+--- !u!114 &-4593074377898193324
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,41 +41,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 4994083264534893520}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb5d6e464a7862343a6e65d422c78f9b, type: 3}
+  m_Script: {fileID: 11500000, guid: 247857a08b9180542a9d3715d6dcb25a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_weatherBehavior: 0
   m_weatherTypeCondition: 1
-  m_weatherMonths: 0
-  m_weatherEffects:
-  - m_effectTitle: Clear
-    m_particles: {fileID: 0}
-    m_vFX: {fileID: 0}
-    m_weatherBehavior: 1
-    m_weatherBehaviorCondition: 0
-    m_probability: 0.5
-    m_onWeatherEvent: {fileID: 0}
-  - m_effectTitle: PartiallyCloudy
-    m_particles: {fileID: 0}
-    m_vFX: {fileID: 0}
-    m_weatherBehavior: 2
-    m_weatherBehaviorCondition: 0
-    m_probability: 0.25
-    m_onWeatherEvent: {fileID: 0}
-  - m_effectTitle: ModerateCloudy
-    m_particles: {fileID: 0}
-    m_vFX: {fileID: 0}
-    m_weatherBehavior: 3
-    m_weatherBehaviorCondition: 0
-    m_probability: 0.125
-    m_onWeatherEvent: {fileID: 0}
-  - m_effectTitle: HeavyCloudy
-    m_particles: {fileID: 0}
-    m_vFX: {fileID: 0}
-    m_weatherBehavior: 0
-    m_weatherBehaviorCondition: 0
-    m_probability: 0.125
-    m_onWeatherEvent: {fileID: 0}
-  m_weatherClearTimeRange:
-    min: 0
-    max: 0
-  m_probabiltyCheckPeriod: 0
+  m_weatherBehaviorCondition: 0
+  m_weatherMonths: -1
+  m_probability: 1
+  m_particlefx:
+    m_keyValuePairs: []
+  m_vfx:
+    m_keyValuePairs: []
+  m_onWeatherEvent: {fileID: 0}

@@ -22,7 +22,7 @@ public class WeatherInterpolator
         OnWeatherSelected.Invoke();
     }
 
-    void UpdateInterpolator()
+    public void UpdateInterpolator()
     {
         if (!m_weatherActive)
             return;
@@ -50,5 +50,10 @@ public class WeatherInterpolator
     public bool IsWeatherActive()
     {
         return m_weatherActive;
+    }
+
+    public void StopInterpolator()
+    {
+        m_weatherActive = false;
     }
 }

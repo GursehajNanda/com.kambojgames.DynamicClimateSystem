@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba381bf7e2b576c439a0cb6885102a3f, type: 3}
+  m_Name: ClearSky
+  m_EditorClassIdentifier: 
+  m_weatherType: 1
+  m_weatherConditions:
+  - {fileID: -4593074377898193324, guid: 99b8189a6c9cf94488c84ac7409c64a1, type: 3}
+  m_weatherTimeRange:
+    min: 24
+    max: 48
+  m_coolDownTime: 0

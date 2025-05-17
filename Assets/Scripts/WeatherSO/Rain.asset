@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba381bf7e2b576c439a0cb6885102a3f, type: 3}
+  m_Name: Rain
+  m_EditorClassIdentifier: 
+  m_weatherType: 3
+  m_weatherConditions:
+  - {fileID: -3871314709901915380, guid: 096f43839b973c048b6d4a7d296b5839, type: 3}
+  - {fileID: -685404281240526464, guid: ce7165f6dc1ec1641ac56593155c58d0, type: 3}
+  - {fileID: 587922681005226696, guid: 47b99733b3af8114a96bb1573551a923, type: 3}
+  m_weatherTimeRange:
+    min: 3
+    max: 6
+  m_coolDownTime: 48

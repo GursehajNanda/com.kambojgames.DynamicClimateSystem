@@ -13,7 +13,7 @@ public class CloudController
     [SerializeField]
     private float m_cloudspawnPosX;
     [SerializeField]
-    private Vector2 m_cloudSpawnYRange;
+    private MinMaxFloat m_cloudSpawnYRange;
 
     private Timer m_spawnTimer;
     private List<string> m_cloudsKeys = new();
@@ -53,7 +53,7 @@ public class CloudController
     {
       
         int i = UnityEngine.Random.Range(0, m_cloudsKeys.Count);
-        float spawnPosY = UnityEngine.Random.Range(m_cloudSpawnYRange.x, m_cloudSpawnYRange.y);
+        float spawnPosY = UnityEngine.Random.Range(m_cloudSpawnYRange.min, m_cloudSpawnYRange.max);
         Vector2 cloudSpawnPos = new Vector2(m_cloudspawnPosX, spawnPosY);
 
         ISpawnObject cloud = ObjectFactorySO.Instance.GetObjectFromPool(m_cloudsKeys[i]);

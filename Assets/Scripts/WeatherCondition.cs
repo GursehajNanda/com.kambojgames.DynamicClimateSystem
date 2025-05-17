@@ -3,7 +3,7 @@ using UnityEngine.VFX;
 using UnityEngine;
 using KambojGames.Utilities2D;
 
-//How to use weather behaviour in calculating probability??
+
 public abstract class WeatherCondition : MonoBehaviour
 {
 
@@ -11,7 +11,7 @@ public abstract class WeatherCondition : MonoBehaviour
 
     [Header("Conditions")]
     [Tooltip("Weather type condition to run this weather")]
-    [SerializeField] private WeatherType m_weatherTypeCondition;
+    [SerializeField] private WeatherTypeFlags m_weatherTypeCondition;
     [Tooltip("Weather behaviour condition to run the weather Effect ")]
     [SerializeField] private WeatherBehaviour m_weatherBehaviorCondition;
     [Tooltip("Months to hit this Weather Behaviour")]
@@ -34,7 +34,7 @@ public abstract class WeatherCondition : MonoBehaviour
 
     public float Probability =>m_probability;
 
-    protected virtual void Start()
+    public virtual void Initialize()
     {
         ClimateData = ClimateData.Instance;
 
@@ -43,41 +43,31 @@ public abstract class WeatherCondition : MonoBehaviour
     }
 
 
-
-    private bool IsConditionMet()
+    public virtual void UpdateCondition()
     {
-        Month CurrentMonth = (Month)ClimateData.GetDateTimeYearData().Month;
+        m_weatherInterpolator.UpdateInterpolator();
 
-        if (!IsMonthInWeather(CurrentMonth)) return false;
-
-        if(ClimateData.RunningWeather.IsRunningWeatherTypeWithBehaviour(m_weatherTypeCondition, m_weatherBehaviorCondition))
+        if(!IsConditionMet())
         {
-            return true;
+            RemoveWeather();
+            m_weatherInterpolator.StopInterpolator();
         }
-
-        return false;
     }
 
-    public bool SelectWeatherEffect(WeatherType weatherType,float weatherStartTime, float weatherEndTime)
+    public bool SelectWeatherEffect(WeatherType weatherType, float weatherStartTime, float weatherEndTime)
     {
-      
+
         if (!IsConditionMet()) return false;
 
         m_weatherType = weatherType;
         ClimateData.RunningWeather.AddWeather(m_weatherType, m_weatherBehavior);
         m_weatherInterpolator.StartWeather(weatherStartTime, weatherEndTime);
-        m_onWeatherEvent.Raise();
+        if (m_onWeatherEvent != null)
+        {
+            m_onWeatherEvent.Raise();
+        }
+
         return true;
-    }
-
-    //Figure Out this
-   
-
-    private bool IsMonthInWeather(Month month)
-    {
-        // Convert Month to WeatherMonths using bit shift
-        WeatherMonths monthAsFlag = (WeatherMonths)(1 << ((int)month - 1));
-        return (m_weatherMonths & monthAsFlag) != 0;
     }
 
 
@@ -86,18 +76,72 @@ public abstract class WeatherCondition : MonoBehaviour
         return m_weatherInterpolator.IsWeatherActive();
     }
 
+    private bool IsConditionMet()
+    {
+        Month CurrentMonth = (Month)ClimateData.GetDateTimeYearData().Month;
+
+        if (!IsMonthInWeather(CurrentMonth)) return false;
+
+        foreach (WeatherType type in (WeatherType[])System.Enum.GetValues(typeof(WeatherType)))
+        {
+            if (type == WeatherType.None) continue;
+
+            WeatherTypeFlags flag = (WeatherTypeFlags)(1 << ((int)type - 1));
+            if (m_weatherTypeCondition.HasFlag(flag))
+            {
+                if (ClimateData.RunningWeather.IsRunningWeatherTypeWithBehaviour(type, m_weatherBehaviorCondition))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsMonthInWeather(Month month)
+    {
+        // Convert Month to WeatherMonths using bit shift
+        WeatherMonths monthAsFlag = (WeatherMonths)(1 << ((int)month - 1));
+        return (m_weatherMonths & monthAsFlag) != 0;
+    }
+
+    protected float EvaluateOverTime(float startValue, float endValue)
+    {
+        return m_weatherInterpolator.EvaluateOverTime(startValue, endValue);
+    }
 
     protected void RemoveWeather()
     {
-        ClimateData.RunningWeather.AddWeather(m_weatherType, m_weatherBehavior);
+        ClimateData.RunningWeather.RemoveWeather(m_weatherType, m_weatherBehavior);
+    }
+
+
+
+    protected void SetParticleEmissionRate(ParticleSystem effect, float rate)
+    {
+        var emission = effect.emission;
+        var rateOverTime = emission.rateOverTime;
+        rateOverTime.constant = rate;
+        emission.rateOverTime = rateOverTime;
+    }
+
+    protected void SetParticleEmissionSpeed(ParticleSystem effect, float speed)
+    {
+        var main = effect.main;
+        main.simulationSpeed = speed;
+    }
+
+    protected void SetParticleStartColor(ParticleSystem effect, Color color)
+    {
+        var main = effect.main;
+        main.startColor = color;
+
     }
 
     protected abstract void OnWeatherSelected();
 
     protected abstract void OnWeatherEnd();
-   
-
-   
 }
 
 
@@ -112,6 +156,19 @@ public enum WeatherType
     Foggy,
     Thunder,
 }
+
+[System.Flags]
+public enum WeatherTypeFlags
+{
+    None = 0,
+    Clear = 1 << 0,
+    Cloudy = 1 << 1,
+    Rainy = 1 << 2,
+    Windy = 1 << 3,
+    Foggy = 1 << 4,
+    Thunder = 1 << 5,
+}
+
 
 [System.Flags]
 public enum WeatherMonths
