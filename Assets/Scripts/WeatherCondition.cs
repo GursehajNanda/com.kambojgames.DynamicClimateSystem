@@ -31,6 +31,8 @@ public abstract class WeatherCondition : MonoBehaviour
     private WeatherType m_weatherType;
 
     protected ClimateData ClimateData;
+    protected float WeatherStartTime;
+    protected float WeatherEndTime;
 
     public float Probability =>m_probability;
 
@@ -46,28 +48,24 @@ public abstract class WeatherCondition : MonoBehaviour
     public virtual void UpdateCondition()
     {
         m_weatherInterpolator.UpdateInterpolator();
-
-        if(!IsConditionMet())
-        {
-            RemoveWeather();
-            m_weatherInterpolator.StopInterpolator();
-        }
     }
 
-    public bool SelectWeatherEffect(WeatherType weatherType, float weatherStartTime, float weatherEndTime)
+    public void SelectWeatherEffect(WeatherType weatherType, float weatherStartTime, float weatherEndTime)
     {
 
-        if (!IsConditionMet()) return false;
+        if (!IsConditionMet()) return;
 
+        WeatherStartTime = weatherStartTime;
+        WeatherEndTime = weatherEndTime;
         m_weatherType = weatherType;
-        ClimateData.RunningWeather.AddWeather(m_weatherType, m_weatherBehavior);
-        m_weatherInterpolator.StartWeather(weatherStartTime, weatherEndTime);
+
+        ClimateData.AddRunningWeather(m_weatherType, m_weatherBehavior);
+        m_weatherInterpolator.StartWeather(WeatherStartTime, WeatherEndTime);
         if (m_onWeatherEvent != null)
         {
             m_onWeatherEvent.Raise();
         }
 
-        return true;
     }
 
 
@@ -76,7 +74,7 @@ public abstract class WeatherCondition : MonoBehaviour
         return m_weatherInterpolator.IsWeatherActive();
     }
 
-    private bool IsConditionMet()
+    protected bool IsConditionMet()
     {
         Month CurrentMonth = (Month)ClimateData.GetDateTimeYearData().Month;
 
@@ -84,12 +82,16 @@ public abstract class WeatherCondition : MonoBehaviour
 
         foreach (WeatherType type in (WeatherType[])System.Enum.GetValues(typeof(WeatherType)))
         {
-            if (type == WeatherType.None) continue;
+            // Convert to bitmask only if not None
+            WeatherTypeFlags flag = WeatherTypeFlags.None;
+            if (type != WeatherType.None)
+            {
+                flag = (WeatherTypeFlags)(1 << ((int)type - 1));
+            }
 
-            WeatherTypeFlags flag = (WeatherTypeFlags)(1 << ((int)type - 1));
             if (m_weatherTypeCondition.HasFlag(flag))
             {
-                if (ClimateData.RunningWeather.IsRunningWeatherTypeWithBehaviour(type, m_weatherBehaviorCondition))
+                if (ClimateData.IsRunningWeatherTypeWithBehaviour(type, m_weatherBehaviorCondition))
                 {
                     return true;
                 }
@@ -111,9 +113,11 @@ public abstract class WeatherCondition : MonoBehaviour
         return m_weatherInterpolator.EvaluateOverTime(startValue, endValue);
     }
 
-    protected void RemoveWeather()
+    protected void RemoveWeather(Weather weatherObject)
     {
-        ClimateData.RunningWeather.RemoveWeather(m_weatherType, m_weatherBehavior);
+        if (m_weatherType == WeatherType.None) return;
+        ClimateData.RemoveRunningWeather(m_weatherType, m_weatherBehavior, weatherObject);
+        Debug.Log("Removed Weather With Type: " + m_weatherType);
     }
 
 
@@ -134,14 +138,18 @@ public abstract class WeatherCondition : MonoBehaviour
 
     protected void SetParticleStartColor(ParticleSystem effect, Color color)
     {
+        color.a = 1;
         var main = effect.main;
         main.startColor = color;
 
     }
 
+    protected virtual void OnWeatherEnd() { }
+   
+
     protected abstract void OnWeatherSelected();
 
-    protected abstract void OnWeatherEnd();
+    public abstract void DeactivateWeather();
 }
 
 

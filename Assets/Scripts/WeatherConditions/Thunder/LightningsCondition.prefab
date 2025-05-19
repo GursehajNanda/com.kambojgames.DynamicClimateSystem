@@ -54,3 +54,4 @@ MonoBehaviour:
   m_vfx:
     m_keyValuePairs: []
   m_onWeatherEvent: {fileID: 0}
+  m_thunderWeather: {fileID: 11400000, guid: a086cc82dfd5c28429558513c72202e6, type: 2}

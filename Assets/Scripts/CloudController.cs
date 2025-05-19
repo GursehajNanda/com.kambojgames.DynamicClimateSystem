@@ -17,6 +17,7 @@ public class CloudController
 
     private Timer m_spawnTimer;
     private List<string> m_cloudsKeys = new();
+    private bool m_startSpawn;
 
     public void Initialize()
     {
@@ -26,21 +27,24 @@ public class CloudController
             m_cloudsKeys.Add(cloud.PoolKey);
         }
 
-        m_spawnTimer = new Timer(1.0f, m_spawnRate, null, SpawnCloud);  
+        m_spawnTimer = new Timer(1.0f, m_spawnRate, null, SpawnCloud);
+        m_startSpawn = false;
     }
 
     public void StartSpawn()
     {
-        m_spawnTimer.Start();
+        m_startSpawn = true;
     }
 
     public void StopSpawn()
     {
+        m_startSpawn = false;
         m_spawnTimer.Stop();
     }
 
     public void UpdateClouds()
     {
+        if (!m_startSpawn) return;
         m_spawnTimer.Update(Time.deltaTime);
         if(!m_spawnTimer.IsTimerRunning())
         {

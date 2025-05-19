@@ -6,6 +6,8 @@ public class PartiallyCloudWeatherCondition : WeatherCondition
 {
     [SerializeField] private CloudController m_cloudController = new();
 
+    [Header("Weather Objects")]
+    [SerializeField] private Weather m_cloudWeather;
 
     public override void Initialize()
     {
@@ -31,9 +33,16 @@ public class PartiallyCloudWeatherCondition : WeatherCondition
 
     protected override void OnWeatherEnd()
     {
-        m_cloudController.StopSpawn();
+        base.OnWeatherEnd();
 
-        RemoveWeather();
+        RemoveWeather(m_cloudWeather);
     }
 
+
+    public override void DeactivateWeather()
+    {
+        Debug.Log("Deactivate Weather");
+
+        m_cloudController.StopSpawn();
+    }
 }

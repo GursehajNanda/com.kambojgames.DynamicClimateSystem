@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WeatherInterpolator
@@ -27,12 +25,14 @@ public class WeatherInterpolator
         if (!m_weatherActive)
             return;
 
+
         m_elapsedTime += Time.deltaTime;
 
         if (m_elapsedTime >= m_weatherEndTime)
         {
             m_weatherActive = false;
             OnWeatherEnd?.Invoke();
+            Debug.Log("Weather End");
         }
     }
 

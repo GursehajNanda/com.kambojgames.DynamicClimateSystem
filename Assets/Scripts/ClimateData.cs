@@ -37,7 +37,7 @@ public class ClimateData : ScriptableObject
     private Material m_seasonVegetationMaterial;
     private List<ShadowInstance> m_shadows = new();
     private List<LightInterpolator> m_lightBlender = new();
-    
+    private RunningWeather m_runningWeather = new();
 
     public float MinutesToLastADay => m_minutesToLastADay;
     public Gradient SummerColorGradient => m_summerColorGradient;
@@ -49,7 +49,7 @@ public class ClimateData : ScriptableObject
     public List<LightInterpolator> LightBlender => m_lightBlender;
 
     public float CloudsStrength => m_cloudsStrength;
-    public RunningWeather RunningWeather = new();
+   
 
     private void OnValidate()
     {
@@ -87,27 +87,95 @@ public class ClimateData : ScriptableObject
 
     private void Initialize()
     {
+
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
         m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");
         m_cloudsStrength = 0;
 
-        RunningWeather.AddWeather(WeatherType.Clear, WeatherBehaviour.None);
-
-        foreach(Weather weather in m_weatherObjects)
+        foreach (Weather weather in m_weatherObjects)
         {
             weather.Initialize();
         }
+
+        foreach (Weather weather in m_weatherObjects)
+        {
+            weather.DeactivateWeather();
+        }
+
+        AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
     }
 
 
     public void UpdateWeather()
     {
-        foreach (Weather weather in m_weatherObjects)
+
+        for (int i = 0; i < m_weatherObjects.Count; i++)
         {
-            weather.UpdateWeather();
+            m_weatherObjects[i].UpdateWeather();
+        }
+   
+
+        if(Input.GetKeyDown(KeyCode.Return))
+        {
+            Dictionary<WeatherType, WeatherBehaviour> runningWeather = m_runningWeather.GetRunningWeather();
+
+            foreach (KeyValuePair<WeatherType, WeatherBehaviour> kvp in runningWeather)
+            {
+                Debug.Log("Running Weather is" + $"Key: {kvp.Key}, Value: {kvp.Value}");
+            }
         }
     }
 
+    public void AddWeatherObject(Weather weatherObject)
+    {
+        if (weatherObject != null)
+        {
+            if (!m_weatherObjects.Contains(weatherObject))
+            {
+                m_weatherObjects.Add(weatherObject);
+            }
+        }
+    }
+
+    public void AddRunningWeather(WeatherType type, WeatherBehaviour behaviour)
+    {
+        m_runningWeather.AddWeather(type, behaviour);
+       
+        UpdateWeatherConditions();
+    }
+
+    public void RemoveRunningWeather(WeatherType type, WeatherBehaviour behaviour, Weather weatherObject = null)
+    {     
+        foreach(Weather weather in m_weatherObjects)
+        {
+            if(weather.WeatherType == type)
+            {
+                weather.DeactivateWeather();
+            }
+        }
+
+        m_runningWeather.RemoveWeather(type, behaviour);
+
+        if (weatherObject != null)
+        {
+            m_weatherObjects.Remove(weatherObject);
+        }
+
+        UpdateWeatherConditions();
+    }
+
+    private void UpdateWeatherConditions()
+    {
+        foreach (Weather weather in m_weatherObjects)
+        {
+            weather.ActivateWeather();
+        }
+    }
+
+    public bool IsRunningWeatherTypeWithBehaviour(WeatherType type, WeatherBehaviour behaviour)
+    {
+        return m_runningWeather.IsRunningWeatherTypeWithBehaviour(type, behaviour);
+    }
 
     public void SetCloudStrength(float value)
     {
@@ -117,7 +185,6 @@ public class ClimateData : ScriptableObject
         }
         m_cloudsStrength = value;
 
-        Debug.Log("Updated Cloud Strength: " + m_cloudsStrength);
     }
 
     public void SetYear(int Year)
@@ -181,7 +248,25 @@ public class ClimateData : ScriptableObject
 
     public Color GetVegetationColor()
     {
-        return m_seasonVegetationMaterial.GetColor("_MainColor");
+        Color baseColor = Color.green;
+        baseColor.a = 1;
+        switch (GetCurrentSeason())
+        {
+            case Season.Autumn:
+                baseColor = m_seasonVegetationMaterial.GetColor("_AutumnTint");
+                break;
+            case Season.Spring:
+                baseColor = m_seasonVegetationMaterial.GetColor("_SpringTint");
+                break;
+            case Season.Summer:
+                baseColor = m_seasonVegetationMaterial.GetColor("_SummerTint");
+                break;
+            case Season.Winter:
+                baseColor = m_seasonVegetationMaterial.GetColor("_WinterTint");
+                break;
+        }
+    
+        return baseColor;
     }
 
     public DateTime GetDateTimeYearData()
@@ -221,8 +306,15 @@ public class ClimateData : ScriptableObject
     }
 
 
+    public float CovertGameHoursToRealTimeInSecs(float time)
+    {
+        float minutesToLastADay = MinutesToLastADay;
+        float secondsPerInGameHour = (minutesToLastADay / 24f) * 60f;
+        return (time * secondsPerInGameHour);
+    }
 
-   
+
+
 }
 
 public enum Season { Spring, Summer, Autumn, Winter }
@@ -262,6 +354,7 @@ public class RunningWeather
 
     public void RemoveWeather(WeatherType type, WeatherBehaviour behaviour)
     {
+
         if (type == WeatherType.None)
             return;
 
@@ -282,5 +375,10 @@ public class RunningWeather
             return value == behaviour;
         }
         return false;
+    }
+
+    public Dictionary<WeatherType, WeatherBehaviour> GetRunningWeather()
+    {
+        return m_runningWeather;
     }
 }

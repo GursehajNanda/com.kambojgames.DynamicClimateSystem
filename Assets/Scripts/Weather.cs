@@ -16,6 +16,7 @@ public class Weather : ScriptableObject
     private float m_weatherStartTime;
     private float m_weatherEndTime;
     private ClimateData m_climateData;
+    private bool m_isInCooldown;
 
     public WeatherType WeatherType => m_weatherType;
    
@@ -24,7 +25,7 @@ public class Weather : ScriptableObject
 
     private void OnValidate()
     {
-        if(m_weatherTimeRange.min <0)
+        if(m_weatherTimeRange.min <0 && m_weatherTimeRange.max !=0)
         {
             Debug.LogError("Minimum value of Weather Time Range cannot be 0");
         }
@@ -50,61 +51,78 @@ public class Weather : ScriptableObject
     public void Initialize()
     {
         m_climateData = ClimateData.Instance;
-
-        float coolDownRealTime = CovertGameHoursToRealTimeInSecs(m_coolDownTime);
-        m_weatherCoolDownTimer = new Timer(1.0f, coolDownRealTime, null, StartWeatherEvent);
-        m_weatherCoolDownTimer.Start();
-
         ActiveWeatherCondition = null;
+        m_isInCooldown = false;
+
+        float coolDownRealTime = m_climateData.CovertGameHoursToRealTimeInSecs(m_coolDownTime);
+        m_weatherCoolDownTimer = new Timer(1.0f, coolDownRealTime, null, StopCoolDown);
 
         foreach (WeatherCondition condition in m_weatherConditions)
         {
             condition.Initialize();
         }
 
-
+     
     }
 
-    private void StartWeatherEvent()
+    public void ActivateWeather()
     {
+        if (m_isInCooldown || ActiveWeatherCondition) return;
+
         m_weatherStartTime = Time.time;
 
         float weatherDurationInHours = Random.Range(m_weatherTimeRange.min, m_weatherTimeRange.max); 
-        float weatherEndRealTimeInSeconds = CovertGameHoursToRealTimeInSecs(weatherDurationInHours);
+        float weatherEndRealTimeInSeconds = m_climateData.CovertGameHoursToRealTimeInSecs(weatherDurationInHours);
 
         m_weatherEndTime = m_weatherStartTime + weatherEndRealTimeInSeconds;
 
-        Debug.Log("Weather Start Time: " + m_weatherStartTime);
-        Debug.Log("Weather End Time: " + m_weatherEndTime);
 
         ActiveWeatherCondition = GetWeatherConditionWithProbability();
 
         if(ActiveWeatherCondition != null)
         {
             ActiveWeatherCondition.SelectWeatherEffect(m_weatherType, m_weatherStartTime, m_weatherEndTime);
+
+            Debug.Log("Weather Start Time: " + m_weatherStartTime);
+            Debug.Log("Weather End Time: " + m_weatherEndTime);
         }
 
     }
 
+    public void DeactivateWeather()
+    {
+        foreach (WeatherCondition condition in m_weatherConditions)
+        {
+            condition.DeactivateWeather();
+        }
+
+        if (ActiveWeatherCondition)
+        {
+            ActiveWeatherCondition = null;
+            m_isInCooldown = true;
+
+
+            m_weatherCoolDownTimer.Reset();
+            m_weatherCoolDownTimer.Start();
+
+           // Debug.Log("Start Cooldown");
+        }
+    }
+
+   
     public void UpdateWeather()
     {
-      
         m_weatherCoolDownTimer.Update(Time.deltaTime);
-
-        if (!m_weatherCoolDownTimer.IsTimerRunning())
-        {
-            if (ActiveWeatherCondition != null && !ActiveWeatherCondition.IsWeatherActive())
-            {
-                m_weatherCoolDownTimer.Reset();
-                m_weatherCoolDownTimer.Start();
-                ActiveWeatherCondition = null;
-            }
-        }
 
         if (ActiveWeatherCondition)
         {
             ActiveWeatherCondition.UpdateCondition();
         }
+    }
+
+    public void StopCoolDown()
+    {
+        m_isInCooldown = false;
     }
 
     private WeatherCondition GetWeatherConditionWithProbability()
@@ -124,13 +142,8 @@ public class Weather : ScriptableObject
         return null;
     }
 
-    private float CovertGameHoursToRealTimeInSecs(float time)
-    {
-        float minutesToLastADay = m_climateData.MinutesToLastADay;
-        float secondsPerInGameHour = (minutesToLastADay / 24f) * 60f;
-        return( time * secondsPerInGameHour);
-    }
-
+   
+   
 }
 
 

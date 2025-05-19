@@ -15,7 +15,6 @@ public class FoggyWeatherCondition : WeatherCondition
         m_fogObject = GameObject.FindGameObjectWithTag("Fog");
         if (m_fogObject)
         {
-            m_fogObject.SetActive(false);
             m_fogVfx = m_fogObject?.GetComponent<VisualEffect>();
             if (!m_fogVfx)
             {
@@ -35,11 +34,17 @@ public class FoggyWeatherCondition : WeatherCondition
         if (!IsWeatherActive()) return;
         m_fogObject.SetActive(true);
         m_fogVfx.SetFloat("FogAmount", m_fogAmount);
+        Debug.Log("Windy");
     }
 
     protected override void OnWeatherEnd()
     {
+        base.OnWeatherEnd();
+        RemoveWeather(null);   
+    }
+
+    public override void DeactivateWeather()
+    {
         m_fogObject.SetActive(false);
-        RemoveWeather();   
     }
 }

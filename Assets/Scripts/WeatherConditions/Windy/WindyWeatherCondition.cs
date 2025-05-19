@@ -26,8 +26,7 @@ public class WindyWeatherCondition : WeatherCondition
         m_windsObject = GameObject.FindGameObjectWithTag("Wind");
         if (m_windsObject)
         {
-            m_windsObject.SetActive(false);
-            ParticleSystem[] windEffects = m_windsObject?.GetComponents<ParticleSystem>();
+            ParticleSystem[] windEffects = m_windsObject?.GetComponentsInChildren<ParticleSystem>();
             foreach(ParticleSystem effect in windEffects)
             {
                 m_windsEffects.Add(effect);
@@ -46,7 +45,6 @@ public class WindyWeatherCondition : WeatherCondition
         m_leafsObject = GameObject.FindGameObjectWithTag("Leafs");
         if(m_leafsObject)
         {
-            m_leafsObject.SetActive(false);
             m_leafsEffect = m_leafsObject?.GetComponent<ParticleSystem>();
             if (!m_leafsEffect)
             {
@@ -73,16 +71,30 @@ public class WindyWeatherCondition : WeatherCondition
         SetParticleEmissionSpeed(m_leafsEffect, m_leafsSimulationSpeed);
         SetParticleEmissionRate(m_leafsEffect, m_leafsEmmisionOverTime);
 
-        SetParticleStartColor(m_leafsEffect, ClimateData.Instance.GetVegetationColor());
+        SetParticleStartColor(m_leafsEffect, ClimateData.GetVegetationColor());
 
+        if (!IsConditionMet())
+        {
+            RemoveWeather(null);
+        }
+
+        if(ClimateData.IsRunningWeatherTypeWithBehaviour(WeatherType.Foggy, WeatherBehaviour.None))
+        {
+            RemoveWeather(null);
+        }
+        Debug.Log("Windy");
     }
 
     protected override void OnWeatherEnd()
     {
-        m_windsObject.SetActive(false);
-        m_leafsObject.SetActive(false);
-        RemoveWeather();
+        base.OnWeatherEnd();
+        RemoveWeather(null);
     }
 
-   
+    public override void DeactivateWeather()
+    {
+        m_windsObject.SetActive(false);
+        m_leafsObject.SetActive(false);
+    }
+
 }

@@ -67,3 +67,4 @@ MonoBehaviour:
     m_cloudSpawnYRange:
       min: 6.78
       max: -8.71
+  m_cloudWeather: {fileID: 11400000, guid: c7196a346e7fbcd439f2125b499a22b5, type: 2}

@@ -18,4 +18,4 @@ MonoBehaviour:
   m_weatherTimeRange:
     min: 2
     max: 4
-  m_coolDownTime: 48
+  m_coolDownTime: 3

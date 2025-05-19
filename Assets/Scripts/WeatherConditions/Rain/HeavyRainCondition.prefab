@@ -56,3 +56,6 @@ MonoBehaviour:
   m_onWeatherEvent: {fileID: 0}
   m_rainSimulationSpeed: 3
   m_rainRateOverTime: 75
+  m_probabilityofThunder: 0.6
+  m_rainWeather: {fileID: 11400000, guid: 90328d6cf45def646be9ba24ce7417a9, type: 2}
+  m_thunderWeather: {fileID: 11400000, guid: a086cc82dfd5c28429558513c72202e6, type: 2}
