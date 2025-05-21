@@ -87,9 +87,16 @@ public class ClimateData : ScriptableObject
 
     private void Initialize()
     {
-
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
         m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");
+        Weather[] weatherObjects = Resources.LoadAll<Weather>("Weather");
+
+        m_weatherObjects.Clear();
+
+        foreach (Weather weatherObj in weatherObjects)
+        {
+            m_weatherObjects.Add(weatherObj);
+        }
         m_cloudsStrength = 0;
 
         foreach (Weather weather in m_weatherObjects)
@@ -99,7 +106,7 @@ public class ClimateData : ScriptableObject
 
         foreach (Weather weather in m_weatherObjects)
         {
-            weather.DeactivateWeather();
+            weather.DisableWeather();
         }
 
         AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
@@ -114,6 +121,10 @@ public class ClimateData : ScriptableObject
             m_weatherObjects[i].UpdateWeather();
         }
    
+        if(m_runningWeather.GetRunningWeather().Count ==0)
+        {
+            AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
+        }
 
         if(Input.GetKeyDown(KeyCode.Return))
         {
@@ -123,18 +134,23 @@ public class ClimateData : ScriptableObject
             {
                 Debug.Log("Running Weather is" + $"Key: {kvp.Key}, Value: {kvp.Value}");
             }
+
+            Debug.Log("This runs");
         }
+
+      
+
     }
 
     public void AddWeatherObject(Weather weatherObject)
     {
-        if (weatherObject != null)
+        if (!m_weatherObjects.Contains(weatherObject))
         {
-            if (!m_weatherObjects.Contains(weatherObject))
-            {
-                m_weatherObjects.Add(weatherObject);
-            }
+            m_weatherObjects.Add(weatherObject);
         }
+
+        weatherObject.ActivateWeather();
+
     }
 
     public void AddRunningWeather(WeatherType type, WeatherBehaviour behaviour)
@@ -144,38 +160,41 @@ public class ClimateData : ScriptableObject
         UpdateWeatherConditions();
     }
 
-    public void RemoveRunningWeather(WeatherType type, WeatherBehaviour behaviour, Weather weatherObject = null)
+    public void RemoveRunningWeather(WeatherType type, Weather weatherObject = null)
     {     
         foreach(Weather weather in m_weatherObjects)
         {
             if(weather.WeatherType == type)
             {
-                weather.DeactivateWeather();
+                weather.DisableWeather();
             }
         }
 
-        m_runningWeather.RemoveWeather(type, behaviour);
+        m_runningWeather.RemoveWeather(type);
 
         if (weatherObject != null)
         {
             m_weatherObjects.Remove(weatherObject);
         }
 
+
         UpdateWeatherConditions();
     }
 
     private void UpdateWeatherConditions()
     {
-        foreach (Weather weather in m_weatherObjects)
+        for(int i = 0; i < m_weatherObjects.Count; i++)
         {
-            weather.ActivateWeather();
+            m_weatherObjects[i].ActivateWeather();
         }
+       
     }
 
     public bool IsRunningWeatherTypeWithBehaviour(WeatherType type, WeatherBehaviour behaviour)
     {
         return m_runningWeather.IsRunningWeatherTypeWithBehaviour(type, behaviour);
     }
+
 
     public void SetCloudStrength(float value)
     {
@@ -313,7 +332,7 @@ public class ClimateData : ScriptableObject
         return (time * secondsPerInGameHour);
     }
 
-
+   
 
 }
 
@@ -352,7 +371,7 @@ public class RunningWeather
 
     }
 
-    public void RemoveWeather(WeatherType type, WeatherBehaviour behaviour)
+    public void RemoveWeather(WeatherType type)
     {
 
         if (type == WeatherType.None)

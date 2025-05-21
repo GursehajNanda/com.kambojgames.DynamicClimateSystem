@@ -26,4 +26,6 @@ public class ClimateManager : MonoBehaviour
         m_seasonCycleController.UpdateSeasons();
         ClimateData.Instance.UpdateWeather();
     }
+
+  
 }

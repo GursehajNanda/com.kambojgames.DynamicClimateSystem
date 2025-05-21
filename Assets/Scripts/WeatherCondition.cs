@@ -66,6 +66,8 @@ public abstract class WeatherCondition : MonoBehaviour
             m_onWeatherEvent.Raise();
         }
 
+        Debug.Log("Weather Start Time: " + WeatherStartTime + "With Weather Type: " + m_weatherType);
+        Debug.Log("Weather End Time: " + WeatherEndTime);
     }
 
 
@@ -116,7 +118,7 @@ public abstract class WeatherCondition : MonoBehaviour
     protected void RemoveWeather(Weather weatherObject)
     {
         if (m_weatherType == WeatherType.None) return;
-        ClimateData.RemoveRunningWeather(m_weatherType, m_weatherBehavior, weatherObject);
+        ClimateData.RemoveRunningWeather(m_weatherType, weatherObject);
         Debug.Log("Removed Weather With Type: " + m_weatherType);
     }
 
@@ -145,11 +147,8 @@ public abstract class WeatherCondition : MonoBehaviour
     }
 
     protected virtual void OnWeatherEnd() { }
-   
 
     protected abstract void OnWeatherSelected();
-
-    public abstract void DeactivateWeather();
 }
 
 

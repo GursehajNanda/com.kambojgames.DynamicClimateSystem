@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using KambojGames.Utilities2D;
+using KambojGames.Utilities2D.Attributes;
 using System;
 
 [Serializable]

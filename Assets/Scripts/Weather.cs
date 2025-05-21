@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using KambojGames.Utilities2D.Attributes;
 
 [CreateAssetMenu(fileName = "Weather", menuName = "ScriptableObject/WeatherData")]
 public class Weather : ScriptableObject
@@ -19,9 +20,9 @@ public class Weather : ScriptableObject
     private bool m_isInCooldown;
 
     public WeatherType WeatherType => m_weatherType;
-   
 
-   
+
+
 
     private void OnValidate()
     {
@@ -62,11 +63,13 @@ public class Weather : ScriptableObject
             condition.Initialize();
         }
 
-     
+
     }
 
     public void ActivateWeather()
     {
+       
+
         if (m_isInCooldown || ActiveWeatherCondition) return;
 
         m_weatherStartTime = Time.time;
@@ -82,20 +85,13 @@ public class Weather : ScriptableObject
         if(ActiveWeatherCondition != null)
         {
             ActiveWeatherCondition.SelectWeatherEffect(m_weatherType, m_weatherStartTime, m_weatherEndTime);
-
-            Debug.Log("Weather Start Time: " + m_weatherStartTime);
-            Debug.Log("Weather End Time: " + m_weatherEndTime);
         }
 
     }
 
-    public void DeactivateWeather()
+    public void DisableWeather()
     {
-        foreach (WeatherCondition condition in m_weatherConditions)
-        {
-            condition.DeactivateWeather();
-        }
-
+       
         if (ActiveWeatherCondition)
         {
             ActiveWeatherCondition = null;
@@ -104,8 +100,6 @@ public class Weather : ScriptableObject
 
             m_weatherCoolDownTimer.Reset();
             m_weatherCoolDownTimer.Start();
-
-           // Debug.Log("Start Cooldown");
         }
     }
 
@@ -118,12 +112,15 @@ public class Weather : ScriptableObject
         {
             ActiveWeatherCondition.UpdateCondition();
         }
+
     }
 
     public void StopCoolDown()
     {
         m_isInCooldown = false;
     }
+
+   
 
     private WeatherCondition GetWeatherConditionWithProbability()
     {
