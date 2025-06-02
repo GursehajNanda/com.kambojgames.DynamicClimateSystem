@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba381bf7e2b576c439a0cb6885102a3f, type: 3}
-  m_Name: Foggy
+  m_Name: Rain
   m_EditorClassIdentifier: 
-  m_weatherType: 5
+  m_weatherType: 3
   m_weatherConditions:
-  - {fileID: -3623527508263141365, guid: e979704b959f2174ebe9555f54f6a69a, type: 3}
-  - {fileID: -3623527508263141365, guid: f3d72c7a90fea8542a612ffb49d87d0d, type: 3}
-  - {fileID: -3623527508263141365, guid: da1a78c605b43ee4fb7e775911fdf653, type: 3}
+  - {fileID: 4648596474125770778, guid: be080fa24961a2d46a9fd6e1cf600358, type: 3}
+  - {fileID: 4648596474125770778, guid: 1481664c8de30d149923c9d7a2a45106, type: 3}
+  - {fileID: 4648596474125770778, guid: 95b2d044b58e7ee44b692b3462318492, type: 3}
   m_weatherTimeRange:
     min: 3
     max: 6
-  m_coolDownTime: 48
+  m_coolDownTime: 12
   IsNotClearSkyType: 1

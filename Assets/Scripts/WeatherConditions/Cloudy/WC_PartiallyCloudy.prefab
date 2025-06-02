@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4892021066921342323
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5441582274139045320}
+  - component: {fileID: -5949671540876633528}
+  m_Layer: 0
+  m_Name: WC_PartiallyCloudy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5441582274139045320
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4892021066921342323}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5949671540876633528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4892021066921342323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 086d946f244286143b76ab3780006d0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_weatherBehavior: 1
+  m_weatherTypeCondition: 1
+  m_weatherBehaviorCondition: 0
+  m_weatherMonths: -1
+  m_probability: 0.4
+  m_particlefx:
+    m_keyValuePairs: []
+  m_vfx:
+    m_keyValuePairs: []
+  m_onWeatherEvent: {fileID: 0}
+  m_cloudController:
+    m_clouds:
+    - {fileID: -4153503601198085428, guid: d2229ca2cc3ec704ab95ad1fea1151f7, type: 3}
+    - {fileID: -2509843376014681332, guid: e96871e9423799a44a432fb91341fd25, type: 3}
+    - {fileID: -8604047382283018963, guid: 3cf692e1eff1ba349b718b70da50a705, type: 3}
+    - {fileID: -7723716618572078028, guid: f8fee3171e37267408a2dc6d425f5fac, type: 3}
+    - {fileID: 7084151483318734029, guid: b37902480e5981642a0170e891fe9dc4, type: 3}
+    - {fileID: 4392001650393368315, guid: 263912db158cde249b85e593290efed8, type: 3}
+    m_spawnRate: 4
+    m_cloudspawnPosX: 18.7
+    m_cloudSpawnYRange:
+      min: 5.7
+      max: -8
+  m_cloudWeather: {fileID: 11400000, guid: fe7c265d0ef79ff4586694dbc6e496ea, type: 2}

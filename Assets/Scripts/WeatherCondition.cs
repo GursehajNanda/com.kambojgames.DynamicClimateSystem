@@ -149,6 +149,8 @@ public abstract class WeatherCondition : MonoBehaviour
     protected virtual void OnWeatherEnd() { }
 
     protected abstract void OnWeatherSelected();
+
+   
 }
 
 

@@ -8,9 +8,11 @@ public class Weather : ScriptableObject
     [SerializeField] private WeatherType m_weatherType;
     [SerializeField] private List<WeatherCondition> m_weatherConditions;
     [Tooltip("Time range  to finish weather effect, Range should be in hours and 24 hour format, this will not be real time but game time.")]
-    [SerializeField] private MinMaxFloat m_weatherTimeRange;
+    [SerializeField] [ConditionalField("IsNotClearSkyType")] private MinMaxFloat m_weatherTimeRange; //Weather Start and end should not affect clear Sky
     [Tooltip("Cool down time after which a weather selection is made should be in hours and 24 hour format, this will not be real time but game time")]
-    [SerializeField] private float m_coolDownTime;
+    [SerializeField] [ConditionalField("IsNotClearSkyType")] private float m_coolDownTime; //No CoolDown for Clear SKy.
+
+    [SerializeField] [HideInInspector] private bool IsNotClearSkyType = false;
 
     private WeatherCondition ActiveWeatherCondition;
     private Timer m_weatherCoolDownTimer; 
@@ -18,6 +20,7 @@ public class Weather : ScriptableObject
     private float m_weatherEndTime;
     private ClimateData m_climateData;
     private bool m_isInCooldown;
+  
 
     public WeatherType WeatherType => m_weatherType;
 
@@ -26,7 +29,9 @@ public class Weather : ScriptableObject
 
     private void OnValidate()
     {
-        if(m_weatherTimeRange.min <0 && m_weatherTimeRange.max !=0)
+        IsNotClearSkyType = m_weatherType != WeatherType.Clear;
+        
+        if(IsNotClearSkyType && m_weatherTimeRange.min <0 && m_weatherTimeRange.max !=0)
         {
             Debug.LogError("Minimum value of Weather Time Range cannot be 0");
         }
@@ -89,9 +94,9 @@ public class Weather : ScriptableObject
 
     }
 
-    public void DisableWeather()
+    public void DeactivateWeather()
     {
-       
+
         if (ActiveWeatherCondition)
         {
             ActiveWeatherCondition = null;

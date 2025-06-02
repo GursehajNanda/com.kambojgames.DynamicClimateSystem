@@ -138,7 +138,4 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
-  m_weatherObjects:
-  - {fileID: 11400000, guid: 415627fdb0958904e8beba389ae2540b, type: 2}
-  - {fileID: 11400000, guid: ce7bf6c212039c8409e6dbfba8ed2242, type: 2}
-  - {fileID: 11400000, guid: 752b7dbcda008874baa8ae1ffd81aadb, type: 2}
+  m_weatherObjects: []

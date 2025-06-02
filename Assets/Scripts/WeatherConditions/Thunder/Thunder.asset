@@ -10,15 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba381bf7e2b576c439a0cb6885102a3f, type: 3}
-  m_Name: Foggy
+  m_Name: Thunder
   m_EditorClassIdentifier: 
-  m_weatherType: 5
+  m_weatherType: 6
   m_weatherConditions:
-  - {fileID: -3623527508263141365, guid: e979704b959f2174ebe9555f54f6a69a, type: 3}
-  - {fileID: -3623527508263141365, guid: f3d72c7a90fea8542a612ffb49d87d0d, type: 3}
-  - {fileID: -3623527508263141365, guid: da1a78c605b43ee4fb7e775911fdf653, type: 3}
+  - {fileID: 3199253306368152667, guid: 6a55fe94332a99448bcaec854e26c35a, type: 3}
   m_weatherTimeRange:
-    min: 3
-    max: 6
-  m_coolDownTime: 48
+    min: 2
+    max: 4
+  m_coolDownTime: 6
   IsNotClearSkyType: 1

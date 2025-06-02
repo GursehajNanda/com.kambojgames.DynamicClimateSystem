@@ -106,7 +106,7 @@ public class ClimateData : ScriptableObject
 
         foreach (Weather weather in m_weatherObjects)
         {
-            weather.DisableWeather();
+            weather.DeactivateWeather();
         }
 
         AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
@@ -166,7 +166,7 @@ public class ClimateData : ScriptableObject
         {
             if(weather.WeatherType == type)
             {
-                weather.DisableWeather();
+                weather.DeactivateWeather();
             }
         }
 

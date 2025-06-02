@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_weatherType: 4
   m_weatherConditions:
-  - {fileID: -2423444659596835817, guid: 90d34550a603d284c87f11c05badd512, type: 3}
-  - {fileID: -5899496542784280089, guid: 4493f451084517649a0aa0ef8e0f53f1, type: 3}
-  - {fileID: 8485484929526717710, guid: f498a5d9cc19f82488a9bbdff0495a2a, type: 3}
+  - {fileID: 5463372700023346461, guid: 4bff7220fc188974fb2d11a3096351a8, type: 3}
+  - {fileID: 5463372700023346461, guid: 4980aff2db501d248ba3135e1398c807, type: 3}
+  - {fileID: 5463372700023346461, guid: 44d71bcf770a0e8478bf1d5d1afdccff, type: 3}
   m_weatherTimeRange:
     min: 4
     max: 8
   m_coolDownTime: 3
+  IsNotClearSkyType: 1
