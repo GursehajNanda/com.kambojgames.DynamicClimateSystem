@@ -36,7 +36,7 @@ public class CloudyWeatherCondition : WeatherCondition
 
         if (ClimateData.IsRunningWeatherTypeWithBehaviour(WeatherType.Clear, WeatherBehaviour.None))
         {
-            RemoveWeather(m_cloudWeather);
+            DisableWeather();
         }
 
     }
@@ -72,12 +72,12 @@ public class CloudyWeatherCondition : WeatherCondition
 
     private void AddRain()
     {
-        ClimateData.Instance.AddWeatherObject(m_rainWeather);
+        ClimateData.Instance.ActivateWeatherObject(m_rainWeather);
     }
 
     private void DisableWeather()
     {
-        RemoveWeather(m_cloudWeather);
+        RemoveWeather(null);
         ClimateData.AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
     }
 }

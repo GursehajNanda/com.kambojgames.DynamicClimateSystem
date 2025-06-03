@@ -63,7 +63,6 @@ public class RainWeatherCondition : WeatherCondition
         m_rainDrops.Play();
         SetParticleEmissionSpeed(m_rainDrops, m_rainSimulationSpeed);
         SetParticleEmissionRate(m_rainDrops, m_rainRateOverTime);
-        Debug.Log("Rain");
     }
 
     protected override void OnWeatherEnd()
@@ -75,12 +74,12 @@ public class RainWeatherCondition : WeatherCondition
 
     private void AddThunder()
     {
-        ClimateData.Instance.AddWeatherObject(m_thunderWeather);
+        ClimateData.Instance.ActivateWeatherObject(m_thunderWeather);
     }
 
     private void DisableWeather()
     {
-        RemoveWeather(m_rainWeather);
+        RemoveWeather(null);
         m_rainDrops.Stop();
     }
 }

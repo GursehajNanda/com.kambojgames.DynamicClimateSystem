@@ -44,19 +44,20 @@ public class ThunderWeatherCondition : WeatherCondition
         if (!IsWeatherActive()) return;
         m_thunerVfx.Play();
         m_thunerVfx.SetBool("Lightnings", true);
-        Debug.Log("Thunder");
     }
 
     protected override void OnWeatherEnd()
     {
         base.OnWeatherEnd();
         m_thunerVfx.SetBool("Lightnings", false);
-       
+        DisableWeather();
+
+
     }
 
     private void DisableWeather()
     {
-        RemoveWeather(m_thunderWeather);
+        RemoveWeather(null);
         m_thunerVfx.Stop();
     }
 

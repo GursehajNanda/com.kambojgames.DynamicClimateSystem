@@ -41,7 +41,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BlendFactor: 0.685219
+    - _BlendFactor: 0.6551095
     - _TintStrength: 0.8
     m_Colors:
     - _AutumnTint: {r: 0.74663067, g: 0.28941694, b: 0.039243378, a: 0}

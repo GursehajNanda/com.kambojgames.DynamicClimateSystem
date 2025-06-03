@@ -135,25 +135,21 @@ public class ClimateData : ScriptableObject
                 Debug.Log("Running Weather is" + $"Key: {kvp.Key}, Value: {kvp.Value}");
             }
 
-            Debug.Log("This runs");
         }
 
       
 
     }
 
-    public void AddWeatherObject(Weather weatherObject)
+    public void ActivateWeatherObject(Weather weatherObject)
     {
-   
-        if (!m_weatherObjects.Contains(weatherObject))
+        if (m_weatherObjects.Contains(weatherObject))
         {
-            m_weatherObjects.Add(weatherObject);
-        }
-
-        weatherObject.ActivateWeather();
-
+            weatherObject.ActivateWeather();
+        }      
     }
 
+ 
 
     public void AddRunningWeather(WeatherType type, WeatherBehaviour behaviour)
     {

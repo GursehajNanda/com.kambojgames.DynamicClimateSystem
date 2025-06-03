@@ -11,6 +11,7 @@ public class Weather : ScriptableObject
     [SerializeField] [ConditionalField("IsNotClearSkyType")] private MinMaxFloat m_weatherTimeRange; //Weather Start and end should not affect clear Sky
     [Tooltip("Cool down time after which a weather selection is made should be in hours and 24 hour format, this will not be real time but game time")]
     [SerializeField] [ConditionalField("IsNotClearSkyType")] private float m_coolDownTime; //No CoolDown for Clear SKy.
+    [SerializeField] private bool m_isInCooldown;
 
     [SerializeField] [HideInInspector] private bool IsNotClearSkyType = false;
 
@@ -19,7 +20,7 @@ public class Weather : ScriptableObject
     private float m_weatherStartTime;
     private float m_weatherEndTime;
     private ClimateData m_climateData;
-    private bool m_isInCooldown; //Cooldown will not run for weather objects like clouds,rain and thunder when removed
+    //Cooldown will not run for weather objects like clouds,rain and thunder when removed
    // Fix: have to add all weather objects at the start, add it to resource folder, but have a bool delay start or start will cooldown
 
     public WeatherType WeatherType => m_weatherType;
@@ -58,26 +59,24 @@ public class Weather : ScriptableObject
     {
         m_climateData = ClimateData.Instance;
         ActiveWeatherCondition = null;
-        m_isInCooldown = false;
-
-        float coolDownRealTime = m_climateData.CovertGameHoursToRealTimeInSecs(m_coolDownTime);
-        m_weatherCoolDownTimer = new Timer(1.0f, coolDownRealTime, null, StopCoolDown);
 
         foreach (WeatherCondition condition in m_weatherConditions)
         {
             condition.Initialize();
         }
 
+        float coolDownRealTime = m_climateData.CovertGameHoursToRealTimeInSecs(m_coolDownTime);
+        m_weatherCoolDownTimer = new Timer(1.0f, coolDownRealTime, null, StopCoolDown);
+        if (m_isInCooldown)
+        {
+            m_weatherCoolDownTimer.Start();
+        }
 
     }
 
     public void ActivateWeather()
     {
-        if (WeatherType == WeatherType.Rainy)
-        { 
-            Debug.Log("here"); 
-        }
-
+     
         if (m_isInCooldown || ActiveWeatherCondition) return;
 
 

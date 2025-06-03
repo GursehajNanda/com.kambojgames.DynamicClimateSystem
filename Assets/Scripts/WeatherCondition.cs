@@ -62,9 +62,6 @@ public abstract class WeatherCondition : MonoBehaviour
 
         if (!IsConditionMet())
         {
-            if (weatherType == WeatherType.Rainy)
-            { Debug.Log("WeatherBehaviour Condition is :" + m_weatherBehaviorCondition); }
-
             OnWeatherConditionFailed?.Invoke();
             return;
         }
