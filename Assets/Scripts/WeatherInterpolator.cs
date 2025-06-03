@@ -22,6 +22,8 @@ public class WeatherInterpolator
 
     public void UpdateInterpolator()
     {
+        if (m_weatherStartTime == 0 && m_weatherEndTime == 0) return;
+
         if (!m_weatherActive)
             return;
 

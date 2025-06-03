@@ -27,17 +27,16 @@ public class ThunderWeatherCondition : WeatherCondition
             Debug.LogError("Could not find thunder vfx object");
         }
 
+        OnWeatherConditionFailed += DisableWeather;
     }
 
     public override void UpdateCondition()
     {
+
         if (!IsWeatherActive()) return;
 
         base.UpdateCondition();
-        if (!IsConditionMet())
-        {
-            DisableWeather();
-        }
+      
     }
 
     protected override void OnWeatherSelected()
@@ -60,4 +59,6 @@ public class ThunderWeatherCondition : WeatherCondition
         RemoveWeather(m_thunderWeather);
         m_thunerVfx.Stop();
     }
+
+
 }

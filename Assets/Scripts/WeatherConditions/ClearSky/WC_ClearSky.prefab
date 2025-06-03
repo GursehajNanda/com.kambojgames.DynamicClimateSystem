@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_weatherBehavior: 0
-  m_weatherTypeCondition: 0
+  m_weatherTypeCondition: 1
   m_weatherBehaviorCondition: 0
   m_weatherMonths: -1
   m_probability: 1
@@ -56,6 +56,6 @@ MonoBehaviour:
   m_onWeatherEvent: {fileID: 0}
   m_probabilityOfClouds: 0.4
   m_checkCloudProbabailityTime:
-    min: 3
-    max: 6
+    min: 1
+    max: 2
   m_cloudWeather: {fileID: 11400000, guid: fe7c265d0ef79ff4586694dbc6e496ea, type: 2}

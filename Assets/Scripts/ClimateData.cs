@@ -144,6 +144,7 @@ public class ClimateData : ScriptableObject
 
     public void AddWeatherObject(Weather weatherObject)
     {
+   
         if (!m_weatherObjects.Contains(weatherObject))
         {
             m_weatherObjects.Add(weatherObject);
@@ -153,8 +154,10 @@ public class ClimateData : ScriptableObject
 
     }
 
+
     public void AddRunningWeather(WeatherType type, WeatherBehaviour behaviour)
     {
+    
         m_runningWeather.AddWeather(type, behaviour);
        
         UpdateWeatherConditions();

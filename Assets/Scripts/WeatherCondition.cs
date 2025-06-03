@@ -26,6 +26,7 @@ public abstract class WeatherCondition : MonoBehaviour
 
     [Header("Game Events")]
     [SerializeField] private GameEvent m_onWeatherEvent;
+   
 
     private WeatherInterpolator m_weatherInterpolator = new();
     private WeatherType m_weatherType;
@@ -33,6 +34,7 @@ public abstract class WeatherCondition : MonoBehaviour
     protected ClimateData ClimateData;
     protected float WeatherStartTime;
     protected float WeatherEndTime;
+    protected System.Action OnWeatherConditionFailed;
 
     public float Probability =>m_probability;
 
@@ -48,36 +50,56 @@ public abstract class WeatherCondition : MonoBehaviour
     public virtual void UpdateCondition()
     {
         m_weatherInterpolator.UpdateInterpolator();
+
+        if(!IsConditionMet())
+        {
+            OnWeatherConditionFailed?.Invoke();
+        }
     }
 
     public void SelectWeatherEffect(WeatherType weatherType, float weatherStartTime, float weatherEndTime)
     {
 
-        if (!IsConditionMet()) return;
+        if (!IsConditionMet())
+        {
+            if (weatherType == WeatherType.Rainy)
+            { Debug.Log("WeatherBehaviour Condition is :" + m_weatherBehaviorCondition); }
+
+            OnWeatherConditionFailed?.Invoke();
+            return;
+        }
 
         WeatherStartTime = weatherStartTime;
         WeatherEndTime = weatherEndTime;
         m_weatherType = weatherType;
 
         ClimateData.AddRunningWeather(m_weatherType, m_weatherBehavior);
-        m_weatherInterpolator.StartWeather(WeatherStartTime, WeatherEndTime);
+        m_weatherInterpolator.StartWeather(weatherStartTime, weatherEndTime);
         if (m_onWeatherEvent != null)
         {
             m_onWeatherEvent.Raise();
         }
 
-        Debug.Log("Weather Start Time: " + WeatherStartTime + "With Weather Type: " + m_weatherType);
+        Debug.Log("Weather Start Time: " + WeatherStartTime + "With Weather Type: " + m_weatherType + "With Behaviour Condition: " + m_weatherBehaviorCondition);
         Debug.Log("Weather End Time: " + WeatherEndTime);
+
+
     }
 
 
-    public bool IsWeatherActive()
+    protected bool IsWeatherActive()
     {
         return m_weatherInterpolator.IsWeatherActive();
     }
 
-    protected bool IsConditionMet()
+    protected void StopInterpolator()
     {
+        m_weatherInterpolator.StopInterpolator();
+    }
+
+    private bool IsConditionMet()
+    {
+
         Month CurrentMonth = (Month)ClimateData.GetDateTimeYearData().Month;
 
         if (!IsMonthInWeather(CurrentMonth)) return false;
@@ -150,7 +172,8 @@ public abstract class WeatherCondition : MonoBehaviour
 
     protected abstract void OnWeatherSelected();
 
-   
+    protected virtual void OnConditionFailed() { }
+
 }
 
 

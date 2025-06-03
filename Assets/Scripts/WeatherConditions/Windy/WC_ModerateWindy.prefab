@@ -54,7 +54,7 @@ MonoBehaviour:
   m_vfx:
     m_keyValuePairs: []
   m_onWeatherEvent: {fileID: 0}
-  m_windSimulationSpeed: 2
+  m_windSimulationSpeed: 1.4
   m_haveLeafs: 1
   m_leafsSimulationSpeed: 2
   m_leafsEmmisionOverTime: 0.5

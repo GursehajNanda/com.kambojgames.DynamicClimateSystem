@@ -19,11 +19,11 @@ public class Weather : ScriptableObject
     private float m_weatherStartTime;
     private float m_weatherEndTime;
     private ClimateData m_climateData;
-    private bool m_isInCooldown;
-  
+    private bool m_isInCooldown; //Cooldown will not run for weather objects like clouds,rain and thunder when removed
+   // Fix: have to add all weather objects at the start, add it to resource folder, but have a bool delay start or start will cooldown
 
     public WeatherType WeatherType => m_weatherType;
-
+    public bool IsInCoolDown => m_isInCooldown;
 
 
 
@@ -73,9 +73,13 @@ public class Weather : ScriptableObject
 
     public void ActivateWeather()
     {
-       
+        if (WeatherType == WeatherType.Rainy)
+        { 
+            Debug.Log("here"); 
+        }
 
         if (m_isInCooldown || ActiveWeatherCondition) return;
+
 
         m_weatherStartTime = Time.time;
 

@@ -57,6 +57,8 @@ public class WindyWeatherCondition : WeatherCondition
         {
             Debug.LogError("Could not find leafs vfx object");
         }
+
+        OnWeatherConditionFailed += DisableWeather;
     }
 
     public override void UpdateCondition()
@@ -64,11 +66,6 @@ public class WindyWeatherCondition : WeatherCondition
         if (!IsWeatherActive()) return;
 
         base.UpdateCondition();
-
-        if (!IsConditionMet())
-        {
-            DisableWeather();
-        }
 
         if (ClimateData.IsRunningWeatherTypeWithBehaviour(WeatherType.Foggy, WeatherBehaviour.None))
         {
@@ -104,7 +101,7 @@ public class WindyWeatherCondition : WeatherCondition
     protected override void OnWeatherEnd()
     {
         base.OnWeatherEnd();
-        RemoveWeather(null);
+        DisableWeather();
     }
 
     private  void DisableWeather()
@@ -116,6 +113,7 @@ public class WindyWeatherCondition : WeatherCondition
 
         m_leafsEffect.Stop();
 
+        RemoveWeather(null);
     }
 
 }

@@ -54,4 +54,4 @@ MonoBehaviour:
   m_vfx:
     m_keyValuePairs: []
   m_onWeatherEvent: {fileID: 0}
-  m_fogAmount: 300
+  m_fogAmount: 150

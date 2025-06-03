@@ -48,7 +48,7 @@ MonoBehaviour:
   m_weatherTypeCondition: 1
   m_weatherBehaviorCondition: 0
   m_weatherMonths: -1
-  m_probability: 0.4
+  m_probability: 0.2
   m_particlefx:
     m_keyValuePairs: []
   m_vfx:

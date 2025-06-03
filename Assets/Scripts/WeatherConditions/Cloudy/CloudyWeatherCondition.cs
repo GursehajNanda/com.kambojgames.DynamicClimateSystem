@@ -20,53 +20,64 @@ public class CloudyWeatherCondition : WeatherCondition
             m_rainWeather.Initialize();
         }
 
+
     }
 
     public override void UpdateCondition()
     {
+        if (!IsWeatherActive()) return;
+
         base.UpdateCondition();
 
-        if (!IsWeatherActive()) return;
         float newCloudStrength = EvaluateOverTime(m_currentCloudStrength, 0.0f);
         ClimateData.SetCloudStrength(newCloudStrength);
 
         m_rainStartTimer.Update(Time.deltaTime);
+
+        if (ClimateData.IsRunningWeatherTypeWithBehaviour(WeatherType.Clear, WeatherBehaviour.None))
+        {
+            RemoveWeather(m_cloudWeather);
+        }
+
     }
 
 
     protected override void OnWeatherSelected()
     {
         if (!IsWeatherActive()) return;
+
         m_currentCloudStrength = m_cloudStrength;
         ClimateData.SetCloudStrength(m_currentCloudStrength);
         ClimateData.RemoveRunningWeather(WeatherType.Clear);
         float probability = Random.Range(0f, 1.0f);
         if (probability <= m_probabilityofRain)
         {
-            float rainStartTime = Random.Range(WeatherStartTime, WeatherEndTime);
+            float rainStartTime = Random.Range(0, WeatherEndTime - WeatherStartTime);
+
             m_rainStartTimer = new Timer(1.0f, rainStartTime, null, AddRain);
             m_rainStartTimer.Start();
-            Debug.Log("Do Rain");
+            Debug.Log("Rain Will Start In: " + rainStartTime + "Seconds");
         }
 
-
-        if (!IsConditionMet())
-        {
-            RemoveWeather(m_cloudWeather);
-        }
+        
     }
 
     protected override void OnWeatherEnd()
     {
         base.OnWeatherEnd();
-        RemoveWeather(m_cloudWeather);
+        DisableWeather();
         ClimateData.SetCloudStrength(0.0f);
-        ClimateData.AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
     }
 
 
     private void AddRain()
     {
         ClimateData.Instance.AddWeatherObject(m_rainWeather);
+    }
+
+    private void DisableWeather()
+    {
+        RemoveWeather(m_cloudWeather);
+        ClimateData.AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
     }
 }

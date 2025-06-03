@@ -1,6 +1,7 @@
 using UnityEngine;
 using KambojGames.Utilities2D.Attributes;
 
+
 public class ClearSkyCondition : WeatherCondition
 {
     [Header("ClearSky")]
@@ -28,10 +29,13 @@ public class ClearSkyCondition : WeatherCondition
         {
             m_cloudWeather.Initialize();
         }
+
     }
 
     public override void UpdateCondition()
     {
+       // if (!IsWeatherActive()) return;
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Clear Sky");
@@ -46,37 +50,39 @@ public class ClearSkyCondition : WeatherCondition
 
         m_updateWeatherTimer.Update(Time.deltaTime);
 
-        if (!IsConditionMet())
-        {
-            RemoveWeather(null);
-        }
+      
     }
 
 
     protected override void OnWeatherSelected()
     {
         if (!IsWeatherActive()) return;
-        ClimateData.SetCloudStrength(0.0f);
 
+        ClimateData.SetCloudStrength(0.0f);
         float weatherUpdateGameTime = Random.Range(m_checkCloudProbabailityTime.max, m_checkCloudProbabailityTime.min);
         float weatherUpdateRealTime = ClimateData.CovertGameHoursToRealTimeInSecs(weatherUpdateGameTime);
         m_updateWeatherTimer = new Timer(1.0f, weatherUpdateRealTime, null, AddClouds);
         m_updateWeatherTimer.Start();
 
+
     }
 
-    protected override void OnWeatherEnd() { }
+    protected override void OnWeatherEnd() { StopInterpolator(); }
 
 
     private void AddClouds()
     {
-        float probability = Random.Range(0.0f, 1.0f);
-        if (probability <= m_probabilityOfClouds)
+        if (!ClimateData.IsRunningWeatherTypeWithBehaviour(WeatherType.Cloudy, WeatherBehaviour.None))
         {
-            ClimateData.Instance.AddWeatherObject(m_cloudWeather);
-        }
+            float probability = Random.Range(0.0f, 1.0f);
+            if (probability <= m_probabilityOfClouds)
+            {
+                ClimateData.Instance.AddWeatherObject(m_cloudWeather);
 
-        Debug.Log("Added Clouds");
+                Debug.Log("Added Clouds");
+            }
+        }
+       
     }
 
 }

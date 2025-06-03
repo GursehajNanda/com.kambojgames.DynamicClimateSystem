@@ -20,5 +20,5 @@ MonoBehaviour:
   m_weatherTimeRange:
     min: 3
     max: 6
-  m_coolDownTime: 12
+  m_coolDownTime: 2
   IsNotClearSkyType: 1

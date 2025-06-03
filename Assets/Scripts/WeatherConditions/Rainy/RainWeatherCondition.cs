@@ -37,10 +37,13 @@ public class RainWeatherCondition : WeatherCondition
             m_thunderWeather.Initialize();
         }
 
+        OnWeatherConditionFailed += DisableWeather;
+
     }
 
     public override void UpdateCondition()
     {
+
         if (!IsWeatherActive()) return;
 
         base.UpdateCondition();
@@ -51,10 +54,7 @@ public class RainWeatherCondition : WeatherCondition
             AddThunder();
         }
 
-        if (!IsConditionMet())
-        {
-            DisableWeather();
-        }
+      
     }
 
     protected override void OnWeatherSelected()

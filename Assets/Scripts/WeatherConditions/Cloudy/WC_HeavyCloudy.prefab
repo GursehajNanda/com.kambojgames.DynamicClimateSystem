@@ -45,16 +45,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_weatherBehavior: 3
-  m_weatherTypeCondition: 1
+  m_weatherTypeCondition: 3
   m_weatherBehaviorCondition: 0
   m_weatherMonths: -1
-  m_probability: 0.3
+  m_probability: 0.5
   m_particlefx:
     m_keyValuePairs: []
   m_vfx:
     m_keyValuePairs: []
   m_onWeatherEvent: {fileID: 0}
   m_cloudStrength: 0.8
-  m_probabilityofRain: 0.3
+  m_probabilityofRain: 1
   m_cloudWeather: {fileID: 11400000, guid: fe7c265d0ef79ff4586694dbc6e496ea, type: 2}
   m_rainWeather: {fileID: 11400000, guid: dde9b6040485be948b8ec76338a2c1ee, type: 2}

@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_weatherBehavior: 0
-  m_weatherTypeCondition: 4
+  m_weatherTypeCondition: 6
   m_weatherBehaviorCondition: 0
   m_weatherMonths: -1
   m_probability: 1
