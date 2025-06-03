@@ -26,7 +26,6 @@ public class PartiallyCloudWeatherCondition : WeatherCondition
         if (!IsWeatherActive()) return;
 
         m_cloudController.StartSpawn();
-        Debug.Log("Partially Cloudy");
     }
 
     protected override void OnWeatherEnd()

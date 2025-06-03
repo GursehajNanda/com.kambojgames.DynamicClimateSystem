@@ -35,7 +35,6 @@ public class FoggyWeatherCondition : WeatherCondition
         if (!IsWeatherActive()) return;
         m_fogVfx.Play();
         m_fogVfx.SetFloat("FogAmount", m_fogAmount);
-        Debug.Log("Windy");
     }
 
     protected override void OnWeatherEnd()

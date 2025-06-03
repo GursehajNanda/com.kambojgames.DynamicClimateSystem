@@ -36,12 +36,6 @@ public class ClearSkyCondition : WeatherCondition
     {
        // if (!IsWeatherActive()) return;
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("Clear Sky");
-        }
-
-
         if (!m_updateWeatherTimer.IsTimerRunning())
         {
             m_updateWeatherTimer.Reset();
@@ -77,7 +71,8 @@ public class ClearSkyCondition : WeatherCondition
             float probability = Random.Range(0.0f, 1.0f);
             if (probability <= m_probabilityOfClouds)
             {
-                ClimateData.Instance.AddWeatherObject(m_cloudWeather);
+                ClimateData.Instance.ActivateWeatherObject(m_cloudWeather);
+                //ClimateData.Instance.AddWeatherObject(m_cloudWeather);
 
                 Debug.Log("Added Clouds");
             }

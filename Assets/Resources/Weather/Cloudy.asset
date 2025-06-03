@@ -21,4 +21,5 @@ MonoBehaviour:
     min: 4
     max: 8
   m_coolDownTime: 2
+  m_isInCooldown: 0
   IsNotClearSkyType: 1

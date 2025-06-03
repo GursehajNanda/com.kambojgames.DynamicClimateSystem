@@ -95,7 +95,7 @@ public class WindyWeatherCondition : WeatherCondition
             SetParticleStartColor(m_leafsEffect, ClimateData.GetVegetationColor());
 
         }
-        Debug.Log("Windy");
+
     }
 
     protected override void OnWeatherEnd()
