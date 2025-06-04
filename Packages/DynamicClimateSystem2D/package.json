@@ -1,0 +1,18 @@
+{
+  "name": "com.kambojgames.dynamicclimatesystem2d",
+  "version": "1.0.0",
+  "displayName": "Dynamic Climate System 2d",
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "14.0.9"
+  },
+  "keywords": [
+    "kambojgames",
+    "kamboj",
+    "DynamicClimateSystem2d"
+  ],
+  "author": {
+    "name": "Gursehaj Singh",
+    "email": "gursehajkamboj@gmail.com"
+  },
+  "description": "Dynamic Climate System 2D\n\n1.It handles real time lighting for assets.\n2.Offers Day and Night Cycle.\n3.Dynamic Seasons \n4. Seasonal Weather System.\n5. Time system for Game.\n6.Dynamic Weather. \n7.A Climate Manage as a brain to controll all these features."
+}

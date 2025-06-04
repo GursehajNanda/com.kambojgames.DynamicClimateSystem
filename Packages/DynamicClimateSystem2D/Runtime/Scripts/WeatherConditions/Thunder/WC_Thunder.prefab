@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_weatherBehavior: 0
   m_weatherTypeCondition: 6
-  m_weatherBehaviorCondition: 0
+  m_weatherBehaviorCondition: 3
   m_weatherMonths: -1
   m_probability: 1
   m_particlefx:

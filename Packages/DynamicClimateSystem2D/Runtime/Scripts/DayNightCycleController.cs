@@ -12,7 +12,9 @@ public class DayNightCycleController
     [SerializeField] float m_intensitySmoothSpeed = 2f;
 
     [Header("Night Lights")]
-    [SerializeField] private List<Light2D> m_nightLights;
+    [SerializeField] private List<Light2D> m_outdoorNightLights;
+    [SerializeField] private List<Light2D> m_indoorNightLights;
+
 
     [Header("Time Period Settings")]
     [SerializeField] private float m_morningStart = 4f;
@@ -79,7 +81,7 @@ public class DayNightCycleController
         m_moon = moon;
         m_globalLight = globalLight;
 
-        foreach (var light in m_nightLights)
+        foreach (var light in m_outdoorNightLights)
         {
             if (!m_lightBaseIntensities.ContainsKey(light))
             {
@@ -105,10 +107,13 @@ public class DayNightCycleController
         m_inGameTime = currentTime.Hour + (currentTime.Minute / 60f);
         float t = m_inGameTime / 24f;
 
+       
+
         UpdateSunPosition();
         UpdateMoonPosition();
         UpdateDayPeriod();
         UpdateNightLights(t);
+        UpdateIndoorNightLights();
         UpdateAmbientIntensity(t);
         UpdateShadow(t);
     }
@@ -135,7 +140,7 @@ public class DayNightCycleController
         float cloudStrength = m_climateData.CloudsStrength;
         float fadeFactor = Mathf.Clamp01(m_nightLightFadeCurve.Evaluate(ratio));
 
-        foreach (var light in m_nightLights)
+        foreach (var light in m_outdoorNightLights)
         {
             if (m_lightBaseIntensities.TryGetValue(light, out float baseIntensity))
             {
@@ -155,9 +160,20 @@ public class DayNightCycleController
             
         }
 
-       
-
     }
+
+    void UpdateIndoorNightLights()
+    {
+        if (m_currentPeriod == m_climateData.GetDayPeriod()) return;
+
+        bool enableLights = m_currentPeriod == DayPeriod.Night;
+
+        foreach (Light2D light in m_indoorNightLights)
+        {
+            light.enabled = enableLights;
+        }
+    }
+
 
     void UpdateDayPeriod()
     {
@@ -178,7 +194,7 @@ public class DayNightCycleController
             m_currentPeriod = DayPeriod.Evening;
         }
 
-
+        UpdateIndoorNightLights();
 
         m_climateData.SetDayPeriod(m_currentPeriod);
 

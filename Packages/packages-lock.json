@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.kambojgames.dynamicclimatesystem2d": {
+      "version": "file:DynamicClimateSystem2D",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.render-pipelines.universal": "14.0.9"
+      }
+    },
     "com.kambojgames.utilities2d": {
       "version": "file:C:/PortFolio/CustomPackages/Utilities 2d",
       "depth": 0,

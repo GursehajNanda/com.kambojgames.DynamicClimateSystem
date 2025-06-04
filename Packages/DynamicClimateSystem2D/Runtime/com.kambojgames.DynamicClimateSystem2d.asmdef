@@ -1,0 +1,17 @@
+{
+    "name": "com.kambojgames.DynamicClimateSystem2d",
+    "rootNamespace": "",
+    "references": [
+        "GUID:858b0bb4c0e32b24e8328cd0b29baac5",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

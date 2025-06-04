@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5085850589753637078
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 7
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -20,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SeasonalTint_lit
+  m_Name: SeasonalVegetationMaterial
   m_Shader: {fileID: -6465566751694194690, guid: 9210c8fe3085be543ad11ede578290c1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -54,14 +41,25 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BlendFactor: 0.6551095
-    - _TintStrength: 0.6
+    - _BlendFactor: 0.65237224
+    - _TintStrength: 0.8
     m_Colors:
-    - _AutumnTint: {r: 0.89218324, g: 0.5109506, b: 0.29699355, a: 0}
+    - _AutumnTint: {r: 0.74663067, g: 0.28941694, b: 0.039243378, a: 0}
     - _MainColor: {r: 1, g: 1, b: 1, a: 0}
-    - _SpringTint: {r: 0.6935175, g: 0.800539, b: 0.25353995, a: 0}
-    - _SummerTint: {r: 0.3673007, g: 0.5849056, b: 0.14425567, a: 0}
-    - _TileOffset: {r: 0, g: 0, b: 0, a: 0}
-    - _TileSize: {r: 1, g: 0.74, b: 0, a: 0}
-    - _WinterTint: {r: 0.6549864, g: 0.47715932, b: 0.24275099, a: 0}
+    - _SpringTint: {r: 0.4425622, g: 0.509434, b: 0.17507496, a: 0}
+    - _SummerTint: {r: 0.19605576, g: 0.3207546, b: 0.12925284, a: 0}
+    - _WinterTint: {r: 0.40700805, g: 0.31038868, b: 0.18156284, a: 0}
   m_BuildTextureStacks: []
+--- !u!114 &7521000205993279447
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7
