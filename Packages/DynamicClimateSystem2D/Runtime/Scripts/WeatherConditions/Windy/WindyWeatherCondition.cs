@@ -13,7 +13,7 @@ public class WindyWeatherCondition : WeatherCondition
     [ConditionalField("m_haveLeafs")]
     [SerializeField] private float m_leafsEmmisionOverTime;
 
-    private List<ParticleSystem> m_windsEffects = new List<ParticleSystem>();
+    private List<ParticleSystem> m_windsEffects;
     private ParticleSystem m_leafsEffect;
 
 
@@ -21,6 +21,9 @@ public class WindyWeatherCondition : WeatherCondition
     public override void Initialize()
     {
         base.Initialize();
+        m_windsEffects = new();
+        m_leafsEffect = new();
+
         GameObject windsObject = GameObject.FindGameObjectWithTag("Wind");
         if (windsObject)
         {
@@ -35,12 +38,12 @@ public class WindyWeatherCondition : WeatherCondition
             {
                 Debug.LogError("Wind VFX is missing");
             }
-
         }
         else
         {
             Debug.LogError("Could not find winds vfx object");
         }
+
 
         GameObject m_leafsObject = GameObject.FindGameObjectWithTag("Leafs");
         if (m_leafsObject)
@@ -77,6 +80,7 @@ public class WindyWeatherCondition : WeatherCondition
         if (!IsWeatherActive()) return;
         foreach (ParticleSystem effect in m_windsEffects)
         {
+            if (effect == null) return;
             effect.Play();
         }
     
@@ -104,10 +108,13 @@ public class WindyWeatherCondition : WeatherCondition
         DisableWeather();
     }
 
+    
+
     private  void DisableWeather()
     {
         foreach (ParticleSystem effect in m_windsEffects)
         {
+            if (effect == null) return;
             effect.Stop();
         }
 

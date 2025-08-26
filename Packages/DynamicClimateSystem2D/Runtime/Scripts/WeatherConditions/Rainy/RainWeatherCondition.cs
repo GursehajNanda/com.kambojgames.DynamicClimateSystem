@@ -5,13 +5,10 @@ public class RainWeatherCondition : WeatherCondition
     [Header("Rain")]
     [SerializeField] private float m_rainSimulationSpeed;
     [SerializeField] private float m_rainRateOverTime;
-    [Range(0, 1)] [SerializeField] float m_probabilityofThunder = 0.3f;
+ 
 
     private ParticleSystem m_rainDrops;
 
-    [Header("Weather Objects")]
-    [SerializeField] private Weather m_rainWeather;
-    [SerializeField] private Weather m_thunderWeather;
 
     public override void Initialize()
     {
@@ -32,10 +29,6 @@ public class RainWeatherCondition : WeatherCondition
             Debug.LogError("Could not find rain effect object");
         }
 
-        if (m_thunderWeather)
-        {
-            m_thunderWeather.Initialize();
-        }
 
         OnWeatherConditionFailed += DisableWeather;
 
@@ -47,13 +40,6 @@ public class RainWeatherCondition : WeatherCondition
         if (!IsWeatherActive()) return;
 
         base.UpdateCondition();
-
-        float probability = Random.Range(0f, 1.0f);
-        if (probability <= m_probabilityofThunder)
-        {
-            AddThunder();
-        }
-
       
     }
 
@@ -72,10 +58,7 @@ public class RainWeatherCondition : WeatherCondition
     }
 
 
-    private void AddThunder()
-    {
-        ClimateData.Instance.ActivateWeatherObject(m_thunderWeather);
-    }
+  
 
     private void DisableWeather()
     {

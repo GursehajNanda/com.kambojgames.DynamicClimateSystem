@@ -63,8 +63,3 @@ MonoBehaviour:
     - {fileID: 7084151483318734029, guid: b37902480e5981642a0170e891fe9dc4, type: 3}
     - {fileID: 4392001650393368315, guid: 263912db158cde249b85e593290efed8, type: 3}
     m_spawnRate: 4
-    m_cloudspawnPosX: 18.7
-    m_cloudSpawnYRange:
-      min: 5.7
-      max: -8
-  m_cloudWeather: {fileID: 11400000, guid: fe7c265d0ef79ff4586694dbc6e496ea, type: 2}

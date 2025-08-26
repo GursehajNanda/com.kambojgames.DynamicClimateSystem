@@ -5,7 +5,6 @@ using KambojGames.Utilities2D;
 
 public class CloudBehaviour : MonoBehaviour,ISpawnObject
 {
-    public GameObject ParentGameObject => gameObject;
     [SerializeField]
     private float m_moveSpeed = 5.0f;
     [SerializeField]
@@ -13,9 +12,14 @@ public class CloudBehaviour : MonoBehaviour,ISpawnObject
     [SerializeField]
     private string m_poolKey;
 
-
     private Vector2 m_spawnPos;
     public string PoolKey => m_poolKey;
+
+    public GameObject ParentGameObject => gameObject;
+
+    public bool IsPersistent => true;
+
+
 
     private void Awake()
     {

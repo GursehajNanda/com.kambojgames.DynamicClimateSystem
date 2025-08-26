@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 
-
-//execute late to be sure the manager are instantiated 
 public class ShadowInstance : MonoBehaviour
 {
     [SerializeField]

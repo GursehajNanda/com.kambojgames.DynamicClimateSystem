@@ -12,7 +12,7 @@ public abstract class WeatherCondition : MonoBehaviour
     [Header("Conditions")]
     [Tooltip("Weather type condition to run this weather")]
     [SerializeField] private WeatherTypeFlags m_weatherTypeCondition;
-    [Tooltip("Weather behaviour condition to run the weather Effect ")]
+    [Tooltip("Weather behaviour intensity condition to run the weather Effect ")]
     [SerializeField] private WeatherBehaviour m_weatherBehaviorCondition;
     [Tooltip("Months to hit this Weather Behaviour")]
     [SerializeField] private WeatherMonths m_weatherMonths;
@@ -51,19 +51,23 @@ public abstract class WeatherCondition : MonoBehaviour
     {
         m_weatherInterpolator.UpdateInterpolator();
 
-        if(!IsConditionMet())
+        if (!IsWeatherActive()) return;
+        if (!IsConditionMet())
         {
             OnWeatherConditionFailed?.Invoke();
         }
     }
 
-    public void SelectWeatherEffect(WeatherType weatherType, float weatherStartTime, float weatherEndTime)
+    public bool SelectWeatherEffect(WeatherType weatherType, float weatherStartTime, float weatherEndTime)
     {
+        if (weatherType == WeatherType.Windy)
+        {
+            Debug.Log("here");
+        }
 
         if (!IsConditionMet())
         {
-            OnWeatherConditionFailed?.Invoke();
-            return;
+            return false;
         }
 
         WeatherStartTime = weatherStartTime;
@@ -77,10 +81,7 @@ public abstract class WeatherCondition : MonoBehaviour
             m_onWeatherEvent.Raise();
         }
 
-        Debug.Log("Weather Start Time: " + WeatherStartTime + "With Weather Type: " + m_weatherType + "With Behaviour Condition: " + m_weatherBehaviorCondition);
-        Debug.Log("Weather End Time: " + WeatherEndTime);
-
-
+        return true;
     }
 
 
@@ -96,7 +97,7 @@ public abstract class WeatherCondition : MonoBehaviour
 
     private bool IsConditionMet()
     {
-
+    
         Month CurrentMonth = (Month)ClimateData.GetDateTimeYearData().Month;
 
         if (!IsMonthInWeather(CurrentMonth)) return false;

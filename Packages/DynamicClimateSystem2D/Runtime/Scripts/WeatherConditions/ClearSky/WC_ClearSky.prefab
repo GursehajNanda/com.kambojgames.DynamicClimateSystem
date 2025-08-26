@@ -54,8 +54,8 @@ MonoBehaviour:
   m_vfx:
     m_keyValuePairs: []
   m_onWeatherEvent: {fileID: 0}
-  m_probabilityOfClouds: 0.4
+  m_probabilityOfClouds: 0.5
   m_checkCloudProbabailityTime:
-    min: 1
-    max: 2
+    min: 3
+    max: 6
   m_cloudWeather: {fileID: 11400000, guid: fe7c265d0ef79ff4586694dbc6e496ea, type: 2}

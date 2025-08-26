@@ -18,7 +18,8 @@ MonoBehaviour:
   - {fileID: -3623527508263141365, guid: f3d72c7a90fea8542a612ffb49d87d0d, type: 3}
   - {fileID: -3623527508263141365, guid: da1a78c605b43ee4fb7e775911fdf653, type: 3}
   m_weatherTimeRange:
-    min: 3
-    max: 6
-  m_coolDownTime: 8
+    min: 4
+    max: 8
+  m_coolDownTime: 12
   IsNotClearSkyType: 1
+  m_isInCooldown: 0

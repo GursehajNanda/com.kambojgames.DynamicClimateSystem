@@ -1,7 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Diagnostics;
 
 
 [CreateAssetMenu(fileName = "ClimateData", menuName = "ScriptableObject/ClimateData")]
@@ -17,7 +17,7 @@ public class ClimateData : ScriptableObject
     [SerializeField] private int m_hour;
     [Range(1, 59)]
     [SerializeField] private int m_minute;
-    [SerializeField] [Min(1.0f)] private float m_minutesToLastADay;
+    [SerializeField][Min(1f)] private float m_minutesToLastADay;
 
 
     [Header("Seasonal Day Light")]
@@ -28,6 +28,7 @@ public class ClimateData : ScriptableObject
 
     [Header("Weather")]
     [SerializeField] List<Weather> m_weatherObjects;
+    [SerializeField] float m_autoWeatherActiveGameTime = 1.0f;
 
     private float m_cloudsStrength;
     private DayPeriod m_dayPeriod;
@@ -38,6 +39,8 @@ public class ClimateData : ScriptableObject
     private List<ShadowInstance> m_shadows = new();
     private List<LightInterpolator> m_lightBlender = new();
     private RunningWeather m_runningWeather = new();
+    private DateTime m_currentDateTime;
+    private Timer m_autoWeatherCheckTimer;
 
     public float MinutesToLastADay => m_minutesToLastADay;
     public Gradient SummerColorGradient => m_summerColorGradient;
@@ -49,7 +52,7 @@ public class ClimateData : ScriptableObject
     public List<LightInterpolator> LightBlender => m_lightBlender;
 
     public float CloudsStrength => m_cloudsStrength;
-   
+
 
     private void OnValidate()
     {
@@ -74,9 +77,9 @@ public class ClimateData : ScriptableObject
             if (m_instance == null)
             {
                 m_instance = Resources.Load<ClimateData>("ClimateData");
-                if(m_instance == null)
+                if (m_instance == null)
                 {
-                    Debug.LogError("ClimateData instance not found in Resources.");
+                    UnityEngine.Debug.LogError("ClimateData instance not found in Resources.");
                 }
 
                 m_instance.Initialize();
@@ -89,16 +92,27 @@ public class ClimateData : ScriptableObject
     {
         m_seasonMaterial = Resources.Load<Material>("Materials/SeasonalTint_lit");
         m_seasonVegetationMaterial = Resources.Load<Material>("Materials/SeasonalVegetationMaterial");
+
         Weather[] weatherObjects = Resources.LoadAll<Weather>("Weather");
 
         m_weatherObjects.Clear();
-
         foreach (Weather weatherObj in weatherObjects)
         {
             m_weatherObjects.Add(weatherObj);
-        }
-        m_cloudsStrength = 0;
+            if (weatherObj.WeatherType != WeatherType.Clear)
+            {
+                weatherObj.SetIsColldown(true);
+            }
 
+        }
+
+        
+
+        m_currentDateTime = new DateTime(m_year, (int)m_month, m_monthDay, m_hour, m_minute, 0);
+    }
+
+    public void StartWeather()
+    {
         foreach (Weather weather in m_weatherObjects)
         {
             weather.Initialize();
@@ -109,9 +123,14 @@ public class ClimateData : ScriptableObject
             weather.DeactivateWeather();
         }
 
+        m_runningWeather = new();
+        m_cloudsStrength = 0;
+        float checkRealTime = CovertGameTimeToRealTimeInSecs(m_autoWeatherActiveGameTime);
+        m_autoWeatherCheckTimer = new Timer(1.0f, checkRealTime, null, UpdateWeatherConditions);
+        m_autoWeatherCheckTimer.Start();
+
         AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
     }
-
 
     public void UpdateWeather()
     {
@@ -120,23 +139,33 @@ public class ClimateData : ScriptableObject
         {
             m_weatherObjects[i].UpdateWeather();
         }
-   
-        if(m_runningWeather.GetRunningWeather().Count ==0)
+
+
+        if (m_runningWeather.GetRunningWeather().Count == 0)
         {
             AddRunningWeather(WeatherType.Clear, WeatherBehaviour.None);
         }
 
-        if(Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return))
         {
             Dictionary<WeatherType, WeatherBehaviour> runningWeather = m_runningWeather.GetRunningWeather();
 
             foreach (KeyValuePair<WeatherType, WeatherBehaviour> kvp in runningWeather)
             {
-                Debug.Log("Running Weather is" + $"Key: {kvp.Key}, Value: {kvp.Value}");
+                UnityEngine.Debug.Log("Running Weather is" + $"Key: {kvp.Key}, Value: {kvp.Value}");
             }
 
         }
 
+        if(m_autoWeatherCheckTimer.IsTimerRunning())
+        {
+            m_autoWeatherCheckTimer.Update(Time.deltaTime);
+        }
+        else
+        {
+            m_autoWeatherCheckTimer.Reset();
+            m_autoWeatherCheckTimer.Start();
+        }
       
 
     }
@@ -146,60 +175,107 @@ public class ClimateData : ScriptableObject
         if (m_weatherObjects.Contains(weatherObject))
         {
             weatherObject.ActivateWeather();
-        }      
+        }
     }
 
- 
+
 
     public void AddRunningWeather(WeatherType type, WeatherBehaviour behaviour)
     {
-    
         m_runningWeather.AddWeather(type, behaviour);
-       
         UpdateWeatherConditions();
     }
 
     public void RemoveRunningWeather(WeatherType type, Weather weatherObject = null)
-    {     
-        foreach(Weather weather in m_weatherObjects)
+    {
+        foreach (Weather weather in m_weatherObjects)
         {
-            if(weather.WeatherType == type)
+            if (weather.WeatherType == type)
             {
                 weather.DeactivateWeather();
             }
         }
 
+ 
+
         m_runningWeather.RemoveWeather(type);
-
-        if (weatherObject != null)
-        {
-            m_weatherObjects.Remove(weatherObject);
-        }
-
 
         UpdateWeatherConditions();
     }
 
+    public void ForceWeatherEffects(WeatherType type, WeatherBehaviour behaviour)
+    {
+        foreach (Weather weather in m_weatherObjects)
+        {
+            if (weather.WeatherType == type)
+            {
+                weather.StopCoolDown();
+            }
+        }
+        AddRunningWeather(type, behaviour);
+    }
+    public void ResetWeatherEffects()
+    {
+        foreach (Weather weather in m_weatherObjects)
+        {
+            weather.ResetWeather();
+        }
+    }
+
     private void UpdateWeatherConditions()
     {
-        for(int i = 0; i < m_weatherObjects.Count; i++)
+        for (int i = 0; i < m_weatherObjects.Count; i++)
         {
             m_weatherObjects[i].ActivateWeather();
         }
-       
+
     }
 
-    public bool IsRunningWeatherTypeWithBehaviour(WeatherType type, WeatherBehaviour behaviour)
+
+    public bool IsRunningWeatherTypeWithBehaviour(WeatherType type, WeatherBehaviour behaviour = WeatherBehaviour.None)
     {
         return m_runningWeather.IsRunningWeatherTypeWithBehaviour(type, behaviour);
     }
 
+    public bool IsRunningWeatherTypeWithBehaviour(WeatherTypeFlags weatherFlag, WeatherBehaviour behaviour = WeatherBehaviour.None)
+    {
+        bool foundWeather = false;
+        foreach (WeatherType type in (WeatherType[])System.Enum.GetValues(typeof(WeatherType)))
+        {
+            // Convert to bitmask only if not None
+            WeatherTypeFlags flag = WeatherTypeFlags.None;
+            if (type != WeatherType.None)
+            {
+                flag = (WeatherTypeFlags)(1 << ((int)type - 1));
+            }
+
+            if (weatherFlag.HasFlag(flag))
+            {
+                if (m_runningWeather.IsRunningWeatherTypeWithBehaviour(type, behaviour))
+                {
+                    foundWeather = true;
+                }
+            }
+        }
+
+        return foundWeather;
+
+    }
+    
+    public WeatherBehaviour GetCurrentWeatherBehaviour(WeatherType type)
+    {
+        if(m_runningWeather.GetRunningWeather().TryGetValue(type, out WeatherBehaviour behaviour))
+        {
+            return behaviour;
+        }
+        return WeatherBehaviour.None;
+    }
 
     public void SetCloudStrength(float value)
     {
-        if(value <0 || value >1)
+        if (value < 0 || value > 1)
         {
-            Debug.Log("Cloud strength value must be between 0 and 1");
+            UnityEngine.Debug.Log("Cloud strength value must be between 0 and 1");
         }
         m_cloudsStrength = value;
 
@@ -215,27 +291,28 @@ public class ClimateData : ScriptableObject
         {
             m_year = Year;
         }
-       
+
     }
 
     public void SetMonth(Month month)
     {
-        m_month = month;
+        UpdateCurrentDateTime(month: (int)month);
     }
 
-    public void SetMonthDay(int monthDay)
+    public void SetDayInMonth(int dayInMonth)
     {
-        m_monthDay = Mathf.Clamp(monthDay, 1, DateTime.DaysInMonth(m_year, (int)m_month));
+        UpdateCurrentDateTime(day: dayInMonth);
     }
+
 
     public void SetHourOfDay(int hour)
     {
-        m_hour = Mathf.Clamp(hour, 0, 23);
+        UpdateCurrentDateTime(hour: hour);
     }
 
     public void SetMinuteOfHour(int minute)
     {
-        m_minute = Mathf.Clamp(minute, 0, 59); ;
+        UpdateCurrentDateTime(minute: minute);
     }
 
     public void SetDayPeriod(DayPeriod dayPeriod)
@@ -243,13 +320,33 @@ public class ClimateData : ScriptableObject
         m_dayPeriod = dayPeriod;
     }
 
-    public void  SetDateTimeYearData(DateTime dateTimeYearData)
+    public void SetDateTimeYearData(DateTime dateTimeYearData)
     {
+        m_currentDateTime = dateTimeYearData;
+
         m_year = dateTimeYearData.Year;
         m_month = (Month)(dateTimeYearData.Month);
         m_monthDay = dateTimeYearData.Day;
         m_hour = dateTimeYearData.Hour;
         m_minute = dateTimeYearData.Minute;
+    }
+
+    public void UpdateCurrentDateTime(
+    int? year = null,
+    int? month = null,
+    int? day = null,
+    int? hour = null,
+    int? minute = null,
+    int? second = null)
+    {
+        m_currentDateTime = new DateTime(
+            year ?? m_currentDateTime.Year,
+            month ?? m_currentDateTime.Month,
+            day ?? m_currentDateTime.Day,
+            hour ?? m_currentDateTime.Hour,
+            minute ?? m_currentDateTime.Minute,
+            second ?? m_currentDateTime.Second
+        );
     }
 
     public void SetCurrentSeason(Season season)
@@ -259,9 +356,9 @@ public class ClimateData : ScriptableObject
 
     public void SetMaterialSesaonalBlend(float blendFactor)
     {
-       m_seasonMaterial.SetFloat("_BlendFactor", blendFactor);
-       m_seasonVegetationMaterial.SetFloat("_BlendFactor", blendFactor);
-       
+        m_seasonMaterial.SetFloat("_BlendFactor", blendFactor);
+        m_seasonVegetationMaterial.SetFloat("_BlendFactor", blendFactor);
+
     }
 
     public Color GetVegetationColor()
@@ -283,13 +380,20 @@ public class ClimateData : ScriptableObject
                 baseColor = m_seasonVegetationMaterial.GetColor("_WinterTint");
                 break;
         }
-    
+
         return baseColor;
     }
 
+
+
     public DateTime GetDateTimeYearData()
     {
-        return new DateTime(m_year, (int)m_month, m_monthDay, m_hour, m_minute, 0);
+        return m_currentDateTime;
+    }
+
+    public float GetTimeInFraction()
+    {
+        return m_hour + (m_minute / 60f);
     }
 
     public DayPeriod GetDayPeriod()
@@ -313,7 +417,7 @@ public class ClimateData : ScriptableObject
         m_shadows.Remove(shadow);
     }
 
-    public  void RegisterLightBlender(LightInterpolator interpolator)
+    public void RegisterLightBlender(LightInterpolator interpolator)
     {
         m_lightBlender.Add(interpolator);
     }
@@ -324,14 +428,31 @@ public class ClimateData : ScriptableObject
     }
 
 
-    public float CovertGameHoursToRealTimeInSecs(float time)
+    public float CovertGameTimeToRealTimeInSecs(float time, bool isTimeInMins = false)
     {
+        if (isTimeInMins)
+        {
+            time = time / 60;
+        }
+
         float minutesToLastADay = MinutesToLastADay;
         float secondsPerInGameHour = (minutesToLastADay / 24f) * 60f;
         return (time * secondsPerInGameHour);
     }
 
-   
+
+
+    public void UpdateMinutesToLastTheDay(float time)
+    {
+        if (time < 0)
+        {
+            UnityEngine.Debug.LogError("Minutes to Last The Day cannot be negative");
+        }
+
+        m_minutesToLastADay = time;
+
+    }
+
 
 }
 
@@ -343,9 +464,18 @@ public enum Month
     July, August, September, October, November, December
 }
 
-public enum WeekDay
+[System.Flags]
+public enum WeekDayFlags
 {
-    Sunday = 0, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+    None = 0,
+    Sunday = 1 << 0,
+    Monday = 1 << 1,
+    Tuesday = 1 << 2,
+    Wednesday = 1 << 3,
+    Thursday = 1 << 4,
+    Friday = 1 << 5,
+    Saturday = 1 << 6,
+    AllDays = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday
 }
 
 public enum WeatherBehaviour
@@ -362,8 +492,8 @@ public class RunningWeather
 
     public void AddWeather(WeatherType type, WeatherBehaviour behaviour)
     {
-   
-        if (type == WeatherType.None )
+
+        if (type == WeatherType.None)
             return;
 
         m_runningWeather[type] = behaviour; // Adds or updates
@@ -380,7 +510,7 @@ public class RunningWeather
     }
 
 
-    public bool IsRunningWeatherTypeWithBehaviour(WeatherType type ,WeatherBehaviour behaviour)
+    public bool IsRunningWeatherTypeWithBehaviour(WeatherType type, WeatherBehaviour behaviour)
     {
 
         if (m_runningWeather.TryGetValue(type, out WeatherBehaviour value))

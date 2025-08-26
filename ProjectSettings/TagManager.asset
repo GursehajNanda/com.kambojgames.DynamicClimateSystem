@@ -9,6 +9,12 @@ TagManager:
   - Thunder
   - Wind
   - Leafs
+  - GlobalLight
+  - Sun
+  - Moon
+  - OrbitCenter
+  - OutdoorLight
+  - IndoorLight
   layers:
   - Default
   - TransparentFX
@@ -69,4 +75,7 @@ TagManager:
     locked: 0
   - name: Weather
     uniqueID: 3924739909
+    locked: 0
+  - name: UI
+    uniqueID: 91097165
     locked: 0

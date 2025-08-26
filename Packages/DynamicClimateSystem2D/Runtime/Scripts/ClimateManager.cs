@@ -1,25 +1,41 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using KambojGames.Utilities2D;
 
-public class ClimateManager : MonoBehaviour
+[System.Serializable]
+public class ClimateManager:MonoBehaviour 
 {
-    [SerializeField] private Light2D m_globalLight;
-    [SerializeField] private Light2D m_sun;
-    [SerializeField] private Light2D m_moon;
     [SerializeField] DayNightCycleController m_dayAndNightController = new();
-    [SerializeField] SeasonCycleController m_seasonCycleController = new();
 
+    private SeasonCycleController m_seasonCycleController = new();
+    private Light2D m_globalLight;
+    private Light2D m_sun;
+    private Light2D m_moon;
 
     TimeAndDayManager m_timeAndDayManager;
 
-    private void Start()
+    public void Awake()
     {
-        m_timeAndDayManager = new TimeAndDayManager();
-        m_dayAndNightController.Initialize(m_sun, m_moon,m_globalLight);
-        m_seasonCycleController.Initialize(m_sun, m_moon);
+        ClimateData.Instance.StartWeather();
     }
 
-    private void Update()
+    public void OnEnable()
+    {
+        m_globalLight = GameObject.FindGameObjectWithTag("GlobalLight")?.GetComponent<Light2D>();
+        m_sun = GameObject.FindGameObjectWithTag("Sun")?.GetComponent<Light2D>();
+        m_moon = GameObject.FindGameObjectWithTag("Moon")?.GetComponent<Light2D>();
+        m_dayAndNightController.Initialize(m_sun, m_moon, m_globalLight);
+        m_seasonCycleController.Initialize(m_sun, m_moon);
+
+        m_timeAndDayManager = new TimeAndDayManager();
+    }
+
+    public void OnDisable()
+    {
+        m_dayAndNightController.Deinitialize();
+    }
+
+    public void Update()
     {
         m_timeAndDayManager.UpdateDateAndTime();
         m_dayAndNightController.UpdateNightDayCycle();
@@ -27,5 +43,4 @@ public class ClimateManager : MonoBehaviour
         ClimateData.Instance.UpdateWeather();
     }
 
-  
 }

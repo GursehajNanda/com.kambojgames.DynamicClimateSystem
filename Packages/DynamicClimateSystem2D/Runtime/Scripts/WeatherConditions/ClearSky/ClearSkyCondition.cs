@@ -25,10 +25,10 @@ public class ClearSkyCondition : WeatherCondition
     public override void Initialize()
     {
         base.Initialize();
-        if (m_cloudWeather)
-        {
-            m_cloudWeather.Initialize();
-        }
+        //if (m_cloudWeather)
+        //{
+        //    m_cloudWeather.Initialize();
+        //}
 
     }
 
@@ -54,7 +54,7 @@ public class ClearSkyCondition : WeatherCondition
 
         ClimateData.SetCloudStrength(0.0f);
         float weatherUpdateGameTime = Random.Range(m_checkCloudProbabailityTime.max, m_checkCloudProbabailityTime.min);
-        float weatherUpdateRealTime = ClimateData.CovertGameHoursToRealTimeInSecs(weatherUpdateGameTime);
+        float weatherUpdateRealTime = ClimateData.CovertGameTimeToRealTimeInSecs(weatherUpdateGameTime);
         m_updateWeatherTimer = new Timer(1.0f, weatherUpdateRealTime, null, AddClouds);
         m_updateWeatherTimer.Start();
 
@@ -68,14 +68,7 @@ public class ClearSkyCondition : WeatherCondition
     {
         if (!ClimateData.IsRunningWeatherTypeWithBehaviour(WeatherType.Cloudy, WeatherBehaviour.None))
         {
-            float probability = Random.Range(0.0f, 1.0f);
-            if (probability <= m_probabilityOfClouds)
-            {
-                ClimateData.Instance.ActivateWeatherObject(m_cloudWeather);
-                //ClimateData.Instance.AddWeatherObject(m_cloudWeather);
-
-                Debug.Log("Added Clouds");
-            }
+            ClimateData.Instance.ActivateWeatherObject(m_cloudWeather);
         }
        
     }

@@ -11,20 +11,20 @@ public class CloudController
     private List<CloudBehaviour> m_clouds;
     [SerializeField]
     private float m_spawnRate = 4.0f;
-    [SerializeField]
-    private float m_cloudspawnPosX;
-    [SerializeField]
-    private MinMaxFloat m_cloudSpawnYRange;
+  
+   
 
     private Timer m_spawnTimer;
     private List<string> m_cloudsKeys = new();
     private bool m_startSpawn;
-
+    private Camera cam;
     public void Initialize()
     {
+        cam = Camera.main;
+
         foreach (CloudBehaviour cloud in m_clouds)
         {
-            ObjectFactorySO.Instance.CreateObjectPool(cloud.PoolKey, cloud, true, 3, 6);
+            ObjectFactorySO.Instance.CreateObjectPool(cloud.PoolKey, cloud, true, 3, 6,true);
             m_cloudsKeys.Add(cloud.PoolKey);
         }
 
@@ -58,12 +58,33 @@ public class CloudController
     {
       
         int i = UnityEngine.Random.Range(0, m_cloudsKeys.Count);
-        float spawnPosY = UnityEngine.Random.Range(m_cloudSpawnYRange.min, m_cloudSpawnYRange.max);
-        Vector2 cloudSpawnPos = new Vector2(m_cloudspawnPosX, spawnPosY);
 
-        ISpawnObject cloud = ObjectFactorySO.Instance.GetObjectFromPool(m_cloudsKeys[i]);
+        float halfHeight = cam.orthographicSize;
+        float halfWidth = halfHeight * cam.aspect;
+        float rightEdgeX = cam.transform.position.x + halfWidth + 3.0f;
 
-        cloud.ParentGameObject.transform.position = cloudSpawnPos;
+      
+        float topY = cam.transform.position.y + halfHeight;
+        float bottomY = cam.transform.position.y - halfHeight;
+        float spawnPosY = UnityEngine.Random.Range(bottomY, topY);
+
+        Vector2 cloudSpawnPos = new Vector2(rightEdgeX, spawnPosY);
+
+        ISpawnObject cloud = ObjectFactorySO.Instance?.GetObjectFromPool(m_cloudsKeys[i]);
+        if(cloud == null)
+        {
+            foreach (CloudBehaviour cloudBehav in m_clouds)
+            {
+                m_cloudsKeys.Clear();
+                ObjectFactorySO.Instance.CreateObjectPool(cloudBehav.PoolKey, cloud, true, 3, 6, true);
+                m_cloudsKeys.Add(cloudBehav.PoolKey);
+            }
+        }
+        else
+        {
+            cloud.ParentGameObject.transform.position = cloudSpawnPos;
+        }
+      
     }
 
 

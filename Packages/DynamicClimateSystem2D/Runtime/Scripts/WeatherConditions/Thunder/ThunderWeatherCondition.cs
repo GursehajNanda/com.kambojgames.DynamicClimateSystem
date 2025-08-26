@@ -5,8 +5,6 @@ public class ThunderWeatherCondition : WeatherCondition
 {
     private VisualEffect m_thunerVfx;
 
-    [Header("Weather Objects")]
-    [SerializeField] private Weather m_thunderWeather;
 
     public override void Initialize()
     {

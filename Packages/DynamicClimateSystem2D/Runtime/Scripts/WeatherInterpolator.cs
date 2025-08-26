@@ -27,10 +27,13 @@ public class WeatherInterpolator
         if (!m_weatherActive)
             return;
 
+        float weatherDuration = m_weatherEndTime - m_weatherStartTime;
 
         m_elapsedTime += Time.deltaTime;
 
-        if (m_elapsedTime >= m_weatherEndTime)
+       
+
+        if (m_elapsedTime >= weatherDuration)
         {
             m_weatherActive = false;
             OnWeatherEnd?.Invoke();

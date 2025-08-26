@@ -11,20 +11,20 @@ public class Weather : ScriptableObject
     [SerializeField] [ConditionalField("IsNotClearSkyType")] private MinMaxFloat m_weatherTimeRange; //Weather Start and end should not affect clear Sky
     [Tooltip("Cool down time after which a weather selection is made should be in hours and 24 hour format, this will not be real time but game time")]
     [SerializeField] [ConditionalField("IsNotClearSkyType")] private float m_coolDownTime; //No CoolDown for Clear SKy.
-    [SerializeField] private bool m_isInCooldown;
+
 
     [SerializeField] [HideInInspector] private bool IsNotClearSkyType = false;
 
     private WeatherCondition ActiveWeatherCondition;
-    private Timer m_weatherCoolDownTimer; 
+    private Timer m_weatherCoolDownTimer;
     private float m_weatherStartTime;
     private float m_weatherEndTime;
     private ClimateData m_climateData;
-    //Cooldown will not run for weather objects like clouds,rain and thunder when removed
-   // Fix: have to add all weather objects at the start, add it to resource folder, but have a bool delay start or start will cooldown
+    [SerializeField] private bool m_isInCooldown;
+   
 
     public WeatherType WeatherType => m_weatherType;
-    public bool IsInCoolDown => m_isInCooldown;
+
 
 
 
@@ -65,52 +65,61 @@ public class Weather : ScriptableObject
             condition.Initialize();
         }
 
-        float coolDownRealTime = m_climateData.CovertGameHoursToRealTimeInSecs(m_coolDownTime);
+        float coolDownRealTime = m_climateData.CovertGameTimeToRealTimeInSecs(m_coolDownTime);
         m_weatherCoolDownTimer = new Timer(1.0f, coolDownRealTime, null, StopCoolDown);
-        if (m_isInCooldown)
+        if(m_isInCooldown)
         {
             m_weatherCoolDownTimer.Start();
         }
-
+        
     }
 
     public void ActivateWeather()
     {
-     
         if (m_isInCooldown || ActiveWeatherCondition) return;
 
-
+      
         m_weatherStartTime = Time.time;
 
-        float weatherDurationInHours = Random.Range(m_weatherTimeRange.min, m_weatherTimeRange.max); 
-        float weatherEndRealTimeInSeconds = m_climateData.CovertGameHoursToRealTimeInSecs(weatherDurationInHours);
+        float weatherDurationInHours = Random.Range(m_weatherTimeRange.min, m_weatherTimeRange.max);
+        float weatherEndRealTimeInSeconds = m_climateData.CovertGameTimeToRealTimeInSecs(weatherDurationInHours);
 
         m_weatherEndTime = m_weatherStartTime + weatherEndRealTimeInSeconds;
-
 
         ActiveWeatherCondition = GetWeatherConditionWithProbability();
 
         if(ActiveWeatherCondition != null)
         {
-            ActiveWeatherCondition.SelectWeatherEffect(m_weatherType, m_weatherStartTime, m_weatherEndTime);
+            if(!ActiveWeatherCondition.SelectWeatherEffect(WeatherType, m_weatherStartTime, m_weatherEndTime))
+            {
+                ActiveWeatherCondition = null;
+            }
         }
 
     }
 
     public void DeactivateWeather()
     {
-
         if (ActiveWeatherCondition)
         {
+
             ActiveWeatherCondition = null;
             m_isInCooldown = true;
-
-
             m_weatherCoolDownTimer.Reset();
             m_weatherCoolDownTimer.Start();
         }
     }
 
+    public void ResetWeather()
+    {
+
+        if (ActiveWeatherCondition)
+        {
+            m_isInCooldown = false;
+            m_weatherCoolDownTimer.Stop();
+            ActiveWeatherCondition = null;
+        }
+    }
    
     public void UpdateWeather()
     {
@@ -128,7 +137,10 @@ public class Weather : ScriptableObject
         m_isInCooldown = false;
     }
 
-   
+   public void SetIsColldown(bool isInCooldown)
+   {
+        m_isInCooldown = isInCooldown;
+   }
 
     private WeatherCondition GetWeatherConditionWithProbability()
     {
@@ -147,7 +159,7 @@ public class Weather : ScriptableObject
         return null;
     }
 
-   
+    
    
 }
 

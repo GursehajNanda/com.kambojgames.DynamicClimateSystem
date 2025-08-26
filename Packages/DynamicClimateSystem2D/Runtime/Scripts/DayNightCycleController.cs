@@ -1,19 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using System;
 
 
 [Serializable]
 public class DayNightCycleController 
 {
-    [SerializeField] private Transform m_orbitCenter;
     [SerializeField] private float m_orbitRadius = 20f;
     [SerializeField] float m_intensitySmoothSpeed = 2f;
-
-    [Header("Night Lights")]
-    [SerializeField] private List<Light2D> m_outdoorNightLights;
-    [SerializeField] private List<Light2D> m_indoorNightLights;
 
 
     [Header("Time Period Settings")]
@@ -61,8 +57,9 @@ public class DayNightCycleController
      new Keyframe(1f, 1.5f)        //540° 
  );
 
-
-
+    private Transform m_orbitCenter;
+    private List<Light2D> m_outdoorNightLights;
+    private List<Light2D> m_indoorNightLights;
     private ClimateData m_climateData;
     private Light2D m_sun;
     private Light2D m_moon;
@@ -73,7 +70,9 @@ public class DayNightCycleController
     private DayPeriod m_currentPeriod;
     private float m_inGameTime; // 0 - 24
     private bool m_isInitialzied = false;
-
+    
+    //public static Action<Scene,LoadSceneMode> OnSceneLoaded;
+    //public static Action<Scene> OnSceneUnloaded;
 
     public void Initialize(Light2D sun, Light2D moon,Light2D globalLight)
     {
@@ -81,25 +80,23 @@ public class DayNightCycleController
         m_moon = moon;
         m_globalLight = globalLight;
 
-        foreach (var light in m_outdoorNightLights)
-        {
-            if (!m_lightBaseIntensities.ContainsKey(light))
-            {
-                m_lightBaseIntensities[light] = light.intensity;
-            }
-        }
-
         m_climateData = ClimateData.Instance;
         m_shadows = m_climateData.Shadows;
         m_lightBlenders = m_climateData.LightBlender;
-        m_isInitialzied = true;
 
+        SceneData.Instance.OnSceneLoadedWithScene += GetActiveLights;
+        SceneData.Instance.OnSceneUnloadedAction += SceneUnloaded;
     }
 
+    public void Deinitialize()
+    {
+        SceneData.Instance.OnSceneLoadedWithScene -= GetActiveLights;
+        SceneData.Instance.OnSceneUnloadedAction -= SceneUnloaded;
+    }
 
     public void UpdateNightDayCycle()
     {
-        if (!m_isInitialzied) { Debug.LogError("DayNightCycleController is not Initialzed, Please Initialize it correctly"); }
+        if (!m_isInitialzied) return;
 
         DateTime currentTime = m_climateData.GetDateTimeYearData();
 
@@ -116,6 +113,52 @@ public class DayNightCycleController
         UpdateIndoorNightLights();
         UpdateAmbientIntensity(t);
         UpdateShadow(t);
+    }
+
+    public void GetActiveLights(Scene scene, LoadSceneMode mode)
+    {
+  
+        m_outdoorNightLights = new();
+        m_indoorNightLights = new();
+
+        m_orbitCenter = GameObject.FindGameObjectWithTag("OrbitCenter")?.transform;
+        m_orbitCenter.transform.parent = Camera.main.transform;
+     
+        AddLightsWithTag("OutdoorLight", m_outdoorNightLights);
+        AddLightsWithTag("IndoorLight", m_indoorNightLights);
+
+        foreach (var light in m_outdoorNightLights)
+        {
+            if (!m_lightBaseIntensities.ContainsKey(light))
+            {
+                m_lightBaseIntensities[light] = light.intensity;
+            }
+        }
+
+        m_isInitialzied = true;
+    }
+
+    private void SceneUnloaded()
+    {
+        m_isInitialzied = false;
+    }
+
+    private void AddLightsWithTag(string parentTag, List<Light2D> targetList)
+    {
+        Transform parent = GameObject.FindGameObjectWithTag(parentTag)?.transform;
+        if (parent == null)
+        {
+            Debug.LogWarning("Night light parent not found.");
+            return;
+        }
+
+        foreach (Transform child in parent.transform)
+        {
+            if (child.TryGetComponent(out Light2D light))
+            {
+                targetList.Add(light);
+            }
+        }
     }
 
     void UpdateSunPosition()

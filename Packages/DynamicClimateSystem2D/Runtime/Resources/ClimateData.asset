@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: ClimateData
   m_EditorClassIdentifier: 
   m_year: 1
-  m_month: 12
-  m_monthDay: 6
-  m_hour: 21
-  m_minute: 47
+  m_month: 6
+  m_monthDay: 22
+  m_hour: 15
+  m_minute: 51
   m_minutesToLastADay: 1
   m_summerColorGradient:
     serializedVersion: 2
@@ -140,8 +140,9 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   m_weatherObjects:
   - {fileID: 11400000, guid: 415627fdb0958904e8beba389ae2540b, type: 2}
-  - {fileID: 11400000, guid: ce7bf6c212039c8409e6dbfba8ed2242, type: 2}
-  - {fileID: 11400000, guid: 752b7dbcda008874baa8ae1ffd81aadb, type: 2}
   - {fileID: 11400000, guid: fe7c265d0ef79ff4586694dbc6e496ea, type: 2}
+  - {fileID: 11400000, guid: ce7bf6c212039c8409e6dbfba8ed2242, type: 2}
   - {fileID: 11400000, guid: dde9b6040485be948b8ec76338a2c1ee, type: 2}
   - {fileID: 11400000, guid: be0e2f841392af74b8ef66a735ab52d8, type: 2}
+  - {fileID: 11400000, guid: 752b7dbcda008874baa8ae1ffd81aadb, type: 2}
+  m_autoWeatherActiveGameTime: 4
